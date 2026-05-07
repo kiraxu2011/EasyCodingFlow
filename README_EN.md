@@ -195,6 +195,12 @@ Skill modifications must follow TDD workflow:
 
 See: [Skills Development Workflow Guidelines](docs/solutions/workflow-issues/skills-development-workflow-enforcement-2026-05-04.md)
 
+## Special Thanks
+
+[OpenSpec](https://github.com/Fission-AI/OpenSpec)
+[superpowers@frad-dotclaude](https://github.com/FradSer/dotclaude)
+[compound-engineering-plugin](https://github.com/EveryInc/compound-engineering-plugin)
+
 ## License
 
 MIT License
