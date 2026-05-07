@@ -1,0 +1,73 @@
+{
+  "skill_name": "skill-quality-verification",
+  "evals": [
+    {
+      "id": 1,
+      "name": "valid-skill-check",
+      "prompt": "验证这个技能的frontmatter和CSO质量：skills/ecf/SKILL.md。输出验证报告。",
+      "expected_output": "验证通过，所有检查项PASS",
+      "files": [],
+      "assertions": [
+        "Output includes '🔍 Skill Quality Verification' header",
+        "Output shows 'PASS' for frontmatter name check",
+        "Output shows 'PASS' for frontmatter description check",
+        "Output shows 'PASS' for CSO 'Use when' check",
+        "Output shows 'PASS' for Overview section check",
+        "Output shows 'PASS' for When to Use section check",
+        "Final result shows 'PASS'"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "invalid-frontmatter",
+      "prompt": "验证这个技能文件的质量。技能路径：skills/ecf-workspace/test-skill-invalid/SKILL.md。该技能的name字段包含括号，description超过500字符。输出验证报告。",
+      "expected_output": "验证失败，检测到frontmatter格式错误",
+      "files": ["skills/ecf-workspace/test-skill-invalid/SKILL.md"],
+      "assertions": [
+        "Output shows 'FAIL' for frontmatter name format check",
+        "Output shows error message about parentheses or special chars",
+        "Output shows 'FAIL' for description length check",
+        "Final result shows 'FAIL'",
+        "Violations list includes name format error"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "cso-violation",
+      "prompt": "验证这个技能的description CSO质量。技能路径：skills/ecf-workspace/test-skill-cso-violation/SKILL.md。该技能的description描述了workflow流程而非触发条件。输出验证报告。",
+      "expected_output": "验证失败，检测到CSO违规",
+      "files": ["skills/ecf-workspace/test-skill-cso-violation/SKILL.md"],
+      "assertions": [
+        "Output shows 'FAIL' for CSO check",
+        "Output shows error about workflow summary in description",
+        "Output mentions 'description must describe triggers, not workflow'",
+        "Final result shows 'FAIL'"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "missing-structure",
+      "prompt": "验证这个技能的内容结构。技能路径：skills/ecf-workspace/test-skill-no-structure/SKILL.md。该技能缺少Overview和When to Use部分。输出验证报告。",
+      "expected_output": "验证失败，检测到结构缺失",
+      "files": ["skills/ecf-workspace/test-skill-no-structure/SKILL.md"],
+      "assertions": [
+        "Output shows 'FAIL' for Overview section check",
+        "Output shows 'FAIL' for When to Use section check",
+        "Output shows error about missing required sections",
+        "Final result shows 'FAIL'"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "output-format-check",
+      "prompt": "验证skills/ecf/SKILL.md的质量，检查输出格式是否使用简洁的元素列表而非冗长的ASCII模板。",
+      "expected_output": "验证报告使用紧凑格式输出",
+      "files": [],
+      "assertions": [
+        "Output format uses compact symbols (✅/❌)",
+        "Output includes structured sections (Frontmatter, CSO, Content)",
+        "Total output length is reasonable (under 500 chars for simple skill)"
+      ]
+    }
+  ]
+}

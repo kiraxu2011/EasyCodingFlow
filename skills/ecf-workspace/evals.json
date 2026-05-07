@@ -1,0 +1,26 @@
+{
+  "skill_name": "ecf-modification",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/ecf 创建一个新的 skill 来处理 PDF 文件解析",
+      "expected_output": "ecf 应检测到技能相关关键词，路由到 skill-creator（而非 writing-skills），启动标准 Skills开发流程",
+      "files": [],
+      "eval_name": "skills-development-routing"
+    },
+    {
+      "id": 2,
+      "prompt": "/ecf-init 初始化项目",
+      "expected_output": "ecf-init 应在依赖检查中检测 skill-creator 安装状态，显示 Dependency Status Summary 包含 skill-creator 行",
+      "files": [],
+      "eval_name": "init-dependency-check"
+    },
+    {
+      "id": 3,
+      "prompt": "查看 CLAUDE.md 中的 Skills development workflow 模板",
+      "expected_output": "Workflow Templates 表格中 Skills development 行应显示 skill-creator（而非 Writing-Skills），Execution layer 说明应引用 skill-creator",
+      "files": ["CLAUDE.md"],
+      "eval_name": "claude-md-workflow-reference"
+    }
+  ]
+}
