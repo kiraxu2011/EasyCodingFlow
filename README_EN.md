@@ -14,8 +14,8 @@ A unified agent orchestration skill that integrates Superpowers, OpenSpec, and C
 **1. Clone the project**
 
 ```bash
-git clone https://github.com/xuguoliang3/ecf.git
-cd ecf
+git clone https://github.com/kiraxu2011/EasyCodingFlow
+cd EasyCodingFlow
 ```
 
 **2. Install skills**

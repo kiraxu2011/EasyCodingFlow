@@ -14,8 +14,8 @@
 **1. 克隆项目**
 
 ```bash
-git clone https://github.com/xuguoliang3/ecf.git
-cd ecf
+git clone https://github.com/kiraxu2011/EasyCodingFlow
+cd EasyCodingFlow
 ```
 
 **2. 安装技能**
