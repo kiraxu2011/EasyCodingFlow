@@ -2,6 +2,18 @@
 
 A unified agent orchestration skill that integrates Superpowers, OpenSpec, and Compound Engineering into a four-layer architecture.
 
+## Overview
+
+EasyCodingFlow is a Claude Code orchestration skill that coordinates multiple development frameworks for workflow orchestration based on user usage scenarios:
+
+| Framework | Layer | Purpose |
+|-----------|-------|---------|
+| **OpenSpec** | Specification Contract Layer | Requirement Specification, Change Management |
+| **Superpowers** | Executive Level | TDD, Brainstorming, Plan Execution |
+| **Compound Engineering** | Knowledge Accumulation Layer | Solution Archiving, Knowledge Reuse |
+
+**Core principle**: Each user request must first undergo intent recognition before being routed to the corresponding workflow
+
 ## Quick Start
 
 ### Prerequisites
@@ -14,7 +26,7 @@ A unified agent orchestration skill that integrates Superpowers, OpenSpec, and C
 **1. Clone the project**
 
 ```bash
-git clone https://github.com/kiraxu2011/EasyCodingFlow
+git clone https://github.com/kiraxu2011/EasyCodingFlow.git
 cd EasyCodingFlow
 ```
 
@@ -80,13 +92,15 @@ ls ~/.claude/skills/
 
 | Scenario | Keywords | Workflow |
 |----------|----------|----------|
-| New Feature | develop, new feature, implement | OpenSpec → Brainstorming → Plans → Execute → Verify → Archive |
-| Incremental | extend, iterate | OpenSpec → Execute → Verify → Archive |
-| Bug Fix | bug, error, fix | Debugging → Fix → Verify |
-| Refactor | refactor, optimize | Brainstorming → Plans → Execute → Verify |
-| Code Review | review, audit | Review → Compound |
-| Documentation | doc, readme | Direct Execution |
-| Knowledge Search | previous, similar | Search docs/solutions/ |
+| New requirement development | Development, new feature, implementation, creation | OpenSpec → Brainstorming → Writing-Plans → Executing-Plans → **Verification → Archive** |
+| Incremental development | Expansion, iteration, enhancement | OpenSpec → Executing-Plans → **Verification → Archive** |
+| Skills Development | skill, skills, optimize skills, SKILL.md | OpenSpec → **skill-creator** → Skill-Quality-Verification → **Archive** → Compound |
+| Bug Repair | bug, error, failure, repair | Systematic-Debugging → Fix → **Verification** → Compound |
+| Code Refactoring | Refactoring and Optimizing Structure | Brainstorming → Writing-Plans → Executing-Plans → **Verification** |
+| Code Review | review、审查 | Requesting-Review → Receiving-Review |
+| Document Update | Documentation, Readme | Direct Execution |
+| Use case completion | Testing, use case | Behavior-Driven-Development → **Verification** |
+| Knowledge Search | Previous, Similar, Historical | Search docs/solutions/ |
 
 ## Features
 
@@ -184,26 +198,6 @@ See: [Skills Development Workflow Guidelines](docs/solutions/workflow-issues/ski
 ## License
 
 MIT License
-
-Copyright (c) 2026 xuguoliang3
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
 
 ---
 

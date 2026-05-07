@@ -2,6 +2,18 @@
 
 统一的 Agent 协作编排技能，整合 Superpowers、OpenSpec、Compound Engineering 为四层架构。
 
+## 概述
+
+EasyCodingFlow 是一个 Claude Code 编排层skill，基于用户使用场景协调多个开发框架进行工作流编排：
+
+| 框架 | 所属层 | 作用 |
+|-----------|-------|---------|
+| **OpenSpec** | 规范契约层 | 需求规格、变更管理 |
+| **Superpowers** | 执行层 | TDD、Brainstorming、计划执行 |
+| **Compound Engineering** | 知识沉淀层 | 解决方案归档、知识复用 |
+
+**核心原则**: 每个用户请求必须先经过意图识别，再路由到对应工作流。
+
 ## 快速开始
 
 ### 前置条件
@@ -14,7 +26,7 @@
 **1. 克隆项目**
 
 ```bash
-git clone https://github.com/kiraxu2011/EasyCodingFlow
+git clone https://github.com/kiraxu2011/EasyCodingFlow.git
 cd EasyCodingFlow
 ```
 
@@ -79,14 +91,16 @@ ls ~/.claude/skills/
 ### 支持场景
 
 | 场景 | 关键词 | 工作流 |
-|------|--------|--------|
-| 新需求开发 | 开发、新功能、实现 | OpenSpec → Brainstorming → Plans → Execute → Verify → Archive |
-| 增量开发 | 扩展、迭代 | OpenSpec → Execute → Verify → Archive |
-| Bug 修复 | bug、报错、修复 | Debugging → Fix → Verify |
-| 代码重构 | 重构、优化结构 | Brainstorming → Plans → Execute → Verify |
-| Code Review | review、审查 | Review → Compound |
-| 文档更新 | 文档、readme | 直接执行 |
-| 知识检索 | 之前、类似 | Search docs/solutions/ |
+|----------|----------|----------|
+| 新需求开发 | 开发、新功能、实现、创建 | OpenSpec → Brainstorming → Writing-Plans → Executing-Plans → **Verification → Archive** |
+| 增量开发 | 扩展、迭代、增强 | OpenSpec → Executing-Plans → **Verification → Archive** |
+| Skills开发 | skill、技能、优化技能、SKILL.md | OpenSpec → **skill-creator** → Skill-Quality-Verification → **Archive** → Compound |
+| Bug修复 | bug、报错、失败、修复 | Systematic-Debugging → Fix → **Verification** → Compound |
+| 代码重构 | 重构、优化结构 | Brainstorming → Writing-Plans → Executing-Plans → **Verification** |
+| Code Review | review、审查 | Requesting-Review → Receiving-Review |
+| 文档更新 | 文档、readme | Direct Execution |
+| 用例补齐 | 测试、用例 | Behavior-Driven-Development → **Verification** |
+| 知识检索 | 之前、类似、历史 | Search docs/solutions/ |
 
 ## 功能一览
 
@@ -184,26 +198,6 @@ your-project/
 ## 许可证
 
 MIT License
-
-Copyright (c) 2026 xuguoliang3
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
 
 ---
 
