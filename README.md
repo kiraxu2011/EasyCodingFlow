@@ -195,6 +195,11 @@ your-project/
 
 详见：[Skills开发工作流规范](docs/solutions/workflow-issues/skills-development-workflow-enforcement-2026-05-04.md)
 
+## 特别感谢
+[OpenSpec](https://github.com/Fission-AI/OpenSpec)
+[superpowers@frad-dotclaude](https://github.com/FradSer/dotclaude)
+[compound-engineering-plugin](https://github.com/EveryInc/compound-engineering-plugin)
+
 ## 许可证
 
 MIT License
