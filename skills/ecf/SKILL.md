@@ -224,6 +224,24 @@ Superpowers:          [状态]
 
 **Only after pre-flight checks (Steps 1-3) pass**, proceed to Intent Recognition Flow below.
 
+**契约层入口路由决策表**:
+
+| 场景类型 | 契约层入口 | 说明 |
+|----------|------------|------|
+| new_feature | `/opsx:propose` | 需要 OpenSpec 变更管理 |
+| skill_development | `/opsx:propose` | 需要 OpenSpec 变更管理 |
+| incremental | `/opsx:propose` | 需要 OpenSpec 变更管理 |
+| refactor | `Skill("superpowers:brainstorming")` | **不需要 OpenSpec**，直接 brainstorming |
+| bug_fix | **跳过契约层** | 直接执行层 |
+| code_review | **跳过契约层** | 直接执行层 |
+| test_coverage | **跳过契约层** | 直接执行层 |
+| documentation | **跳过契约层** | 直接执行 |
+
+**关键区分**:
+- `/opsx:propose` 用于需要变更管理的场景（后续需要 `/opsx:archive`）
+- `brainstorming` 用于需要规划但不需要变更管理的场景
+- bug_fix/code_review 等跳过契约层，直接进入执行层
+
 ## Red Flags - Pre-flight
 
 If you find yourself thinking:
