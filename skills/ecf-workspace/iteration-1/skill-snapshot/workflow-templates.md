@@ -1,26 +1,5 @@
 # Workflow Templates
 
-> **权威源声明**: 此文件是 EasyCodingFlow 工作流模板的唯一权威定义。
-> SKILL.md、CLAUDE.md、README.md 中的工作流表格均为简化摘要，应引用此文件作为完整参考。
-
-## 模板索引
-
-| 模板名称 | 场景 | 关键词 | 工作流概览 |
-|----------|------|--------|------------|
-| new_feature | 新需求开发 | 开发、新功能、实现 | OpenSpec → Brainstorming → Writing-Plans → **ecf-execute** → ecf-verify → **opsx:archive** → Compound |
-| bug_fix | Bug修复 | bug、报错、失败 | Systematic-Debugging → Fix → ecf-verify → Compound |
-| refactor | 代码重构 | 重构、优化结构 | Brainstorming → Writing-Plans → **ecf-execute** → ecf-verify → Compound |
-| code_review | Code Review | review、审查 | **ce-review** → Compound |
-| skill_development | Skills开发 | skill、技能、SKILL.md | OpenSpec → **skill-creator** → skill-quality-verification → **opsx:archive** → Compound |
-| incremental | 增量开发 | 扩展、迭代、增强 | OpenSpec → Executing-Plans → ecf-verify → **opsx:archive** → Compound |
-| documentation | 文档更新 | 文档、readme | Direct Execution |
-| test_coverage | 测试补齐 | 测试、用例 | BDD → ecf-verify → Compound |
-
-**关键说明**:
-- **Archive 步骤**: 使用 OpenSpec 发起的变更（new_feature、skill_development、incremental）必须调用 `/opsx:archive` 完成生命周期闭环
-- **ecf-execute**: 执行层强制使用 `/ecf-execute` 作为并发入口，而非 `superpowers:executing-plans`
-- **Skills开发特例**: 执行层使用 `skill-creator`（TDD），验证层使用 `skill-quality-verification`（而非 ecf-verify）
-
 ## 工作流模板定义
 
 ### 执行策略配置
@@ -181,48 +160,13 @@ workflow:
     action: intent_recognition
   - step: 2
     layer: execution
-    action: Skill("compound-engineering:ce-review")
+    actions:
+      - Skill("superpowers:requesting-code-review")
+      - Skill("superpowers:receiving-code-review")
   - step: 3
     layer: knowledge
     action: ce:compound Update
 ```
-
-**Note**: Uses Compound Engineering's multi-agent review (requires CE plugin). If CE not installed, falls back to Superpowers review skills.
-
-### Template: skill_development (技能开发)
-
-```yaml
-name: skill_development
-layers:
-  - orchestration
-  - contract
-  - execution
-  - verification
-  - knowledge
-workflow:
-  - step: 1
-    layer: orchestration
-    action: intent_recognition
-  - step: 2
-    layer: contract
-    action: /opsx:propose
-  - step: 3
-    layer: execution
-    action: Skill("skill-creator")  # TDD flow with eval-viewer
-  - step: 4
-    layer: verification
-    action: Skill("skill-quality-verification")  # NOT ecf-verify
-  - step: 5
-    layer: knowledge
-    actions:
-      - /opsx:archive  # REQUIRED: OpenSpec lifecycle closure
-      - ce:compound
-```
-
-**Note**: Skills开发工作流与新需求开发的关键差异：
-- Execution layer 使用 `skill-creator`（TDD流程），而非 `superpowers:writing-plans`
-- Verification layer 使用 `skill-quality-verification`（检查frontmatter/CSO），而非 `ecf-verify`
-- 必须调用 `/opsx:archive` 完成变更生命周期闭环
 
 ### Template: incremental (增量开发)
 

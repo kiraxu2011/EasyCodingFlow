@@ -1,0 +1,16 @@
+{
+  "run_id": "分支代码审查-with_skill",
+  "grading_time": "2026-05-08",
+  "expectations": [
+    {
+      "text": "triggers_code_review_workflow",
+      "passed": true,
+      "evidence": "输出包含 '触发工作流: code_review 模板'"
+    },
+    {
+      "text": "uses_ce_code_review",
+      "passed": true,
+      "evidence": "输出包含 '执行层调用技能: ce-code-review'"
+    }
+  ]
+}

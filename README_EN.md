@@ -26,8 +26,8 @@ EasyCodingFlow is a Claude Code orchestration skill that coordinates multiple de
 **1. Clone the project**
 
 ```bash
-git clone https://github.com/kiraxu2011/EasyCodingFlow.git
-cd EasyCodingFlow
+git clone https://gitcode.com/xuguoliang3/EasyCodingFlow.git
+cd ecf
 ```
 
 **2. Install skills**

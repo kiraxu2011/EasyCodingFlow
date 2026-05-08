@@ -280,15 +280,54 @@ Layer 3: 知识沉淀层 (Compound)
 
 ## Workflow
 
-| Scenario | Skills |
-|----------|--------|
-| 新需求 | `/opsx:propose` → `brainstorming` → `writing-plans` → **`ecf-execute`** → **`consistency-verification`** → **`ce:compound`** |
-| Bug修复 | `systematic-debugging` → fix → **`consistency-verification`** → **`ce:compound`** |
-| 重构 | `brainstorming` → `writing-plans` → **`ecf-execute`** → **`consistency-verification`** → **`ce:compound`** |
+核心工作流表格。**完整定义见 [workflow-templates.md](references/workflow-templates.md)**。
 
-**执行入口**: **必须使用 `/ecf-execute`**（强制并发），而非 `superpowers:executing-plans`（可能顺序执行）。
+| Scenario | Workflow |
+|----------|----------|
+| 新需求开发 | `/opsx:propose` → `brainstorming` → `writing-plans` → **`ecf-execute`** → **`ecf-verify`** → **`/opsx:archive`** → `ce:compound` |
+| Bug修复 | `systematic-debugging` → fix → **`ecf-verify`** → `ce:compound` |
+| 代码重构 | `brainstorming` → `writing-plans` → **`ecf-execute`** → **`ecf-verify`** → `ce:compound` |
+| Code Review | **`ce-review`** → `ce:compound` |
+| Skills开发 | `/opsx:propose` → **`skill-creator`** → **`skill-quality-verification`** → **`/opsx:archive`** → `ce:compound` |
+
+**关键说明**:
+- **Archive 步骤**: OpenSpec 发起的变更必须调用 `/opsx:archive` 完成闭环
+- **Skills开发特例**: 执行层使用 `skill-creator`，验证层使用 `skill-quality-verification`
+- **执行入口**: 必须使用 `/ecf-execute`（强制并发）
 
 **REQUIRED**: OpenSpec 产物需转换。See [converter/SKILL.md](references/converter/SKILL.md).
+
+## After Contract Layer Complete (CRITICAL)
+
+**⚠️ 契约层完成后，必须根据场景类型路由，禁止直接执行 /opsx:apply。**
+
+OpenSpec 工具（/opsx:propose）返回通用提示 "Run /opsx:apply..."，
+**但 ecf 项目禁止使用 /opsx:apply**，必须使用正确的执行入口。
+
+### 路由决策表
+
+| 意图识别结果 | 下一步（执行层入口） | 禁止 |
+|--------------|----------------------|------|
+| skill_development | `Skill("skill-creator")` | `/opsx:apply` |
+| new_feature | `/ecf-execute` | `/opsx:apply` |
+| refactor | `/ecf-execute` | `/opsx:apply` |
+| incremental | `/ecf-execute` | `/opsx:apply` |
+| bug_fix | `Skill("systematic-debugging")` | `/opsx:apply` |
+| code_review | `Skill("ce-review")` | `/opsx:apply` |
+
+### Red Flags - After Contract Layer (CRITICAL)
+
+- 契约层完成后调用 `/opsx:apply` — **ecf 项目禁止使用**
+- 看到 OpenSpec 提示就执行 `/opsx:apply` — **必须检查场景路由**
+- 使用 `superpowers:executing-plans` — **必须使用 `/ecf-execute`**
+
+**遇到以上**: 停止，执行路由检查，使用正确的执行入口。
+
+### 为什么禁止 /opsx:apply
+
+1. `/opsx:apply` 可能顺序执行，不利用并发优势
+2. `/ecf-execute` 强制加载 agent-team-driven-development，实现真正并发
+3. ecf 项目要求执行层统一入口，确保一致性和效率
 
 ## Knowledge Layer (Layer 3)
 

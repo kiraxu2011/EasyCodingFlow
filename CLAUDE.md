@@ -47,21 +47,34 @@ skills/
 
 ## Workflow Templates
 
+**权威源**: [workflow-templates.md](skills/ecf/references/workflow-templates.md)
+
 | Scenario | Workflow |
 |----------|----------|
-| New feature | OpenSpec → Brainstorming → Writing-Plans → Executing-Plans → Verification → **Archive** → Compound |
+| New feature | OpenSpec → Brainstorming → Writing-Plans → **ecf-execute** → Verification → **Archive** → Compound |
 | Incremental | OpenSpec → Executing-Plans → Verification → **Archive** → Compound |
-| Skills development | OpenSpec → **skill-creator** → Skill-Quality-Verification → **Archive** → Compound |
+| Skills development | OpenSpec → **skill-creator** → **skill-quality-verification** → **Archive** → Compound |
 | Bug fix | Systematic-Debugging → Fix → Verification → Compound (skips Contract) |
-| Refactor | Brainstorming → Writing-Plans → Executing-Plans → Verification → Compound |
-| Code review | Requesting-Review → Receiving-Review → Compound |
+| Refactor | Brainstorming → Writing-Plans → **ecf-execute** → Verification → Compound |
+| Code review | **ce-review** → Compound |
 | Test coverage | BDD → Verification → Compound |
+| Documentation | Direct Execution |
 
 **Archive step**: 使用 OpenSpec 创建变更的工作流，必须在 Verification 之后调用 `/opsx:archive` 完成变更生命周期闭环 (propose → apply → archive)。
 
 **Skills development workflow** differs from new feature:
 - Execution layer uses `skill-creator` (TDD flow with eval-viewer), NOT `superpowers:writing-plans`
-- Verification uses `skill-quality-verification`, NOT `consistency-verification`
+- Verification uses `skill-quality-verification`, NOT `ecf-verify`
+- Must call `/opsx:archive` for OpenSpec lifecycle closure
+
+**Code review workflow**:
+- Uses Compound Engineering's multi-agent review (`ce-review`)
+- No verification layer (review itself is verification)
+
+**⚠️ After Contract Layer**: OpenSpec 提示 "Run /opsx:apply..." 是通用提示。**ecf 项目禁止 /opsx:apply**，必须按场景路由：
+- skill_development → `skill-creator`
+- new_feature/refactor/incremental → `ecf-execute`
+- bug_fix → `systematic-debugging`
 
 ## Key Skills
 
