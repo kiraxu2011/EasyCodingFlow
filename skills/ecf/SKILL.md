@@ -312,6 +312,9 @@ Layer 3: 知识沉淀层 (Compound)
 - **Archive 步骤**: OpenSpec 发起的变更必须调用 `/opsx:archive` 完成闭环
 - **Skills开发特例**: 执行层使用 `skill-creator`，验证层使用 `skill-quality-verification`
 - **执行入口**: 必须使用 `/ecf-execute`（强制并发）
+- **⚠️ ce:compound 不可跳过**: 所有工作流最后一步必须调用 `ce:compound`，跳过会导致知识无法沉淀
+
+**工作流完成检查**: 使用 [workflow-completion-checklist.md](references/workflow-completion-checklist.md) 检查各步骤状态，防止遗漏 ce:compound。
 
 **REQUIRED**: OpenSpec 产物需转换。See [converter/SKILL.md](references/converter/SKILL.md).
 
@@ -406,6 +409,7 @@ fi
 
 - [intent-keywords.md](references/intent-keywords.md) - 关键词映射
 - [workflow-templates.md](references/workflow-templates.md) - 工作流模板
+- [workflow-completion-checklist.md](references/workflow-completion-checklist.md) - 工作流完成检查清单
 - [parallel-execution.md](references/parallel-execution.md) - 并发执行策略
 - [dependency-check.md](references/dependency-check.md) - 依赖检查完整参考
 - [superpowers-environment-check.md](references/superpowers-environment-check.md) - Superpowers 环境检查
