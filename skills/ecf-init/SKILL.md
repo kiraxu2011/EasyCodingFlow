@@ -3,7 +3,7 @@ name: ecf-init
 description: Use when starting a new project with ecf skill, or when ecf reports missing required directories (docs/solutions/, .claude/ecf_config.yaml), or when user explicitly requests project initialization for ecf workflow. Make sure to use this skill whenever the user mentions initializing a project, setting up ecf, creating project structure, or when ecf reports missing directories, even if they don't explicitly ask for 'ecf-init.'
 ---
 
-# Agent-Teams Project Initialization
+# EasyCodingFlow Project Initialization
 
 Initialize project directory structure for ecf skill workflow.
 
@@ -69,7 +69,7 @@ Parse args → Environment Check → (Auto-install if --auto-install) → Check 
 | OpenSpec CLI + Skills | `openspec --version` + `.claude/skills/openspec-*` | Contract Layer |
 | Compound Engineering | `~/.claude/plugins/cache/compound-engineering-plugin/` | Knowledge Layer |
 | Superpowers@frad-dotclaude | `CLAUDE_PLUGIN_ROOT` + `setup-superpower-loop.sh` | Execution Layer |
-| skill-creator | `~/.claude/plugins/cache/claude-plugins-official/skill-creator/` | Skills Development |
+| skill-creator | `~/.claude/skills/skill-creator/` 或 `~/.claude/plugins/cache/claude-plugins-official/skill-creator/` | Skills Development |
 
 **快速检测**:
 
@@ -84,8 +84,11 @@ ls ~/.claude/plugins/cache/compound-engineering-plugin/ 2>/dev/null | grep -q . 
 export CLAUDE_PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(ls -d ~/.claude/plugins/marketplaces/frad-dotclaude/superpowers 2>/dev/null || ls -d ~/.claude/plugins/cache/frad-dotclaude/superpowers/*/ 2>/dev/null | head -1)}"
 [[ -n "$CLAUDE_PLUGIN_ROOT" && -f "$CLAUDE_PLUGIN_ROOT/scripts/setup-superpower-loop.sh" ]] && echo "✅ SP" || echo "⚠️ SP 未就绪"
 
-# skill-creator
-ls ~/.claude/plugins/cache/claude-plugins-official/skill-creator/ 2>/dev/null | grep -q . && echo "✅ skill-creator" || echo "⚠️ skill-creator 未安装"
+# skill-creator（检测两个安装位置）
+SC_INSTALLED=false
+[[ -d ~/.claude/skills/skill-creator ]] && SC_INSTALLED=true
+[[ -d ~/.claude/plugins/cache/claude-plugins-official/skill-creator ]] && SC_INSTALLED=true
+$SC_INSTALLED && echo "✅ skill-creator" || echo "⚠️ skill-creator 未安装"
 ```
 
 ### Auto-Install Flow
@@ -96,11 +99,14 @@ ls ~/.claude/plugins/cache/claude-plugins-official/skill-creator/ 2>/dev/null | 
 digraph auto_install {
     rankdir=TB;
     start [label="Environment Check", shape=box];
-    detect [label="检测三依赖状态", shape=box];
+    detect [label="检测四依赖状态", shape=box];
     missing [label="有缺失依赖?", shape=diamond];
     auto [label="--auto-install 模式\n自动继续", shape=box];
     prompt [label="提示用户确认安装\n(无 --auto-install)", shape=box];
     install [label="执行安装流程", shape=box];
+    check_sc [label="skill-creator 缺失?", shape=diamond];
+    update_mkt [label="更新/添加 marketplace\nclaude-plugins-official", shape=box];
+    install_sc [label="安装 skill-creator\nclaude plugin install", shape=box];
     proceed [label="继续初始化流程", shape=box];
 
     start -> detect;
@@ -111,6 +117,11 @@ digraph auto_install {
     auto -> install;
     prompt -> install [label="用户确认"];
     prompt -> proceed [label="用户拒绝"];
+    install -> check_sc;
+    check_sc -> update_mkt [label="是"];
+    check_sc -> proceed [label="否"];
+    update_mkt -> install_sc;
+    install_sc -> proceed;
     install -> proceed;
 }
 ```
@@ -132,14 +143,14 @@ ls .claude/skills/openspec-*
 #### 2. Compound Engineering Plugin
 
 ```
-/plugin marketplace add https://github.com/EveryInc/compound-engineering-plugin
+/plugin marketplace add EveryInc/compound-engineering-plugin
 /plugin install compound-engineering
 ```
 
 #### 3. Superpowers@frad-dotclaude
 
 ```
-/plugin marketplace add https://github.com/FradSer/dotclaude
+/plugin marketplace add frad-dotclaude/superpowers
 /plugin install superpowers@frad-dotclaude
 ```
 
@@ -150,11 +161,25 @@ export CLAUDE_PLUGIN_ROOT=~/.claude/plugins/marketplaces/frad-dotclaude/superpow
 
 #### 4. skill-creator Plugin (Official)
 
+**自动安装**（`--auto-install` 模式）：
+```bash
+# 检查 marketplace 是否存在，不存在则添加
+claude plugin marketplace list 2>/dev/null | grep -q claude-plugins-official || claude plugin marketplace add claude-plugins-official
+
+# 更新 marketplace 获取最新插件列表
+claude plugin marketplace update claude-plugins-official
+
+# 安装 skill-creator
+claude plugin install skill-creator@claude-plugins-official
 ```
+
+**手动安装**（在 Claude Code 中运行）：
+```
+/plugin marketplace update claude-plugins-official
 /plugin install skill-creator@claude-plugins-official
 ```
 
-**用途**: Skills开发工作流的执行层使用 skill-creator TDD 流程。
+**用途**: Skills开发工作流的执行层使用 skill-creator TDD 流程。安装后检测位置：`~/.claude/skills/skill-creator/` 或 `~/.claude/plugins/cache/claude-plugins-official/skill-creator/`。
 
 ## Initialization Scenarios
 
@@ -251,6 +276,7 @@ OpenSpec CLI:         [✅ 版本号 / ⚠️ 未安装]
 OpenSpec Skills:      [✅ 已安装 / ⚠️ 未安装]
 Compound Engineering: [✅ 已安装 / ⚠️ 未安装]
 Superpowers:          [✅ frad-dotclaude / ⚠️ 未安装]
+skill-creator:        [✅ 已安装 / ⚠️ 未安装 / 🔄 自动安装中]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [如有 --auto-install，显示安装结果]
 

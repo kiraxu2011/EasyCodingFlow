@@ -2,6 +2,17 @@
 
 ## 场景关键词映射表
 
+### 技能开发
+- skill
+- skills
+- 技能
+- SKILL.md
+- 技能开发
+- 优化技能
+- 修改技能
+- skill-creator
+- skill-quality-verification
+
 ### 新需求开发
 - 开发
 - 新功能
@@ -76,6 +87,19 @@
 
 ---
 
+## 关键词匹配优先级
+
+**优先级规则**（歧义处理）：
+
+1. 如果匹配到 **skill_development** 场景的任何关键词 → **优先分类为 skill_development**
+   - 示例: "优化 skills 技能" → skill_development（不是 refactor）
+   - 示例: "修改 SKILL.md 格式" → skill_development
+   - 原因: 技能开发有特殊工作流要求（skill-creator + skill-quality-verification + archive），分类错误会导致流程错误
+
+2. 如果不包含 skill_development 关键词 → 按 confidence 最高选择场景
+
+---
+
 ## 置信度阈值与处理方式
 
 - **>= 0.7**: 关键词匹配成功，当前 agent 直接路由到工作流
@@ -87,8 +111,9 @@
 
 ## 匹配算法
 
-1. 扫描用户输入中的关键词
-2. 统计每个场景的匹配关键词数量
-3. 计算 confidence = 匹配数 / 该场景关键词总数
-4. 选择 confidence 最高的场景
-5. 若最高 confidence < 0.7，当前 agent 深度分析意图
+1. 应用优先级规则：skill_development 关键词优先匹配
+2. 扫描用户输入中的关键词
+3. 统计每个场景的匹配关键词数量
+4. 计算 confidence = 匹配数 / 该场景关键词总数
+5. 选择 confidence 最高的场景
+6. 若最高 confidence < 0.7，当前 agent 深度分析意图

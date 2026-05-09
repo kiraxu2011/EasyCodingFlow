@@ -2,10 +2,11 @@
 
 ## Overview
 
-Pre-flight Check Step 3 检查三大依赖：
+Pre-flight Check Step 3 检查四大依赖：
 1. OpenSpec Skills (项目级)
 2. Compound Engineering Plugin (用户级)
 3. Superpowers@frad-dotclaude (用户级)
+4. skill-creator (用户级，Skills Development 场景必需)
 
 ## Detection Commands
 
@@ -91,6 +92,42 @@ fi
 | Cache 安装 | `~/.claude/plugins/cache/frad-dotclaude/superpowers/*/` | 备用检查 |
 | 官方版本 | `~/.claude/plugins/cache/claude-plugins-official/superpowers/*/` | Fallback |
 
+### skill-creator
+
+检查 Skills 目录和插件缓存目录：
+
+```bash
+SC_INSTALLED=false
+[[ -d ~/.claude/skills/skill-creator ]] && SC_INSTALLED=true
+[[ -d ~/.claude/plugins/cache/claude-plugins-official/skill-creator ]] && SC_INSTALLED=true
+
+if $SC_INSTALLED; then
+    echo "✅ skill-creator: 已安装"
+else
+    echo "⚠️ skill-creator: 未安装"
+fi
+```
+
+**自动安装**（`--auto-install` 模式会自动执行）：
+```bash
+# 1. 检查/添加 marketplace
+claude plugin marketplace list 2>/dev/null | grep -q claude-plugins-official || claude plugin marketplace add claude-plugins-official
+
+# 2. 更新 marketplace 获取最新插件列表
+claude plugin marketplace update claude-plugins-official
+
+# 3. 安装 skill-creator
+claude plugin install skill-creator@claude-plugins-official
+```
+
+**关键检查点**:
+
+| 检查项 | 路径/命令 | 用途 |
+|--------|-----------|------|
+| Skills 目录 | `~/.claude/skills/skill-creator/` | 已安装到 skills 目录 |
+| 缓存目录 | `~/.claude/plugins/cache/claude-plugins-official/skill-creator/` | 缓存安装位置 |
+| marketplace | `claude plugin marketplace list` | 检查 claude-plugins-official 是否存在 |
+
 ## Fallback Matrix
 
 | 依赖 | 状态 | Fallback 策略 | 影响 | 用户提示 |
@@ -100,6 +137,7 @@ fi
 | **CE** | 未安装 | Degraded: 直接写入简化 solution 文件到 `docs/solutions/` | 知识沉淀功能降级 | "⚠️ Compound Engineering 未安装，知识沉淀使用简化模式" |
 | **Superpowers** | frad 未安装，官方可用 | 使用官方版本 (无 Superpower Loop) | 无 Loop 协调，某些高级并发功能不同 | "⚠️ 使用 Superpowers 官方版本 (frad-dotclaude 未安装)" |
 | **Superpowers** | 完全未安装 | **Critical**: 无法执行，提示用户安装 | Execution Layer 不可用 | "❌ Superpowers 未安装，请先安装 Superpowers skills" |
+| **skill-creator** | 未安装 | Degraded: 仅 skill_development 场景受限，无法使用 skill-creator TDD 流程 | 仅技能开发工作流受影响 | "⚠️ skill-creator 未安装，Skills 开发工作流将受限。运行 ecf-init --auto-install 自动安装" |
 
 ## Dependency Status Summary Format
 
@@ -111,6 +149,7 @@ fi
 OpenSpec Skills:      ✅ 已安装 / ⚠️ 部分缺失 [list]
 Compound Engineering: ✅ 已安装 / ⚠️ 未安装
 Superpowers:          ✅ frad-dotclaude / ⚠️ 官方版本 / ❌ 未安装
+skill-creator:        ✅ 已安装 / ⚠️ 未安装
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [如有缺失依赖，显示建议操作]
 ```
@@ -122,6 +161,8 @@ Superpowers:          ✅ frad-dotclaude / ⚠️ 官方版本 / ❌ 未安装
 - CE 缺失但未使用简化知识沉淀
 - 调用 superpowers skill 时卡住但未检查 CLAUDE_PLUGIN_ROOT
 - Superpowers 完全未安装但未阻止流程
+- skill-creator 未安装但未提示安装（仅 skill_development 场景必需）
+- skill-creator 安装失败时未更新 marketplace
 
 ## Related
 

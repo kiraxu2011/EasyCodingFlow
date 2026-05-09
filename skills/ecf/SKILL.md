@@ -115,114 +115,115 @@ Ask user: "是否现在初始化项目?"
 
 #### Step 3: Dependency Environment Check
 
-**⚠️ 在调用任何外部 skills 前必须检查所有依赖环境。**
+**⚠️ 依赖环境检测统一由 ecf-init 执行。**
 
-检查三大依赖：
-1. **OpenSpec Skills**: 项目级 `.claude/skills/openspec-*`
-2. **Compound Engineering Plugin**: `~/.claude/plugins/cache/compound-engineering-plugin/`
-3. **Superpowers@frad-dotclaude**: `CLAUDE_PLUGIN_ROOT` + `setup-superpower-loop.sh`
+依赖检测逻辑已统一到 `ecf-init` skill，作为唯一权威来源。
+详细检测命令和安装指引见 [ecf-init/SKILL.md](../../ecf-init/SKILL.md#environment-check-pre-flight) 和 [dependency-check.md](references/dependency-check.md)。
 
-**快速检测脚本**:
+**快速检测脚本** (引用 ecf-init 检测逻辑):
 
 ```bash
-# OpenSpec Skills
-OPENSPEC_SKILLS=("openspec-explore" "openspec-propose" "openspec-apply-change" "openspec-archive-change")
-MISSING_OPSX=()
-for skill in "${OPENSPEC_SKILLS[@]}"; do
-    [[ ! -d ".claude/skills/${skill}" ]] && MISSING_OPSX+=("$skill")
-done
-
-# Compound Engineering
-CE_INSTALLED=$(ls ~/.claude/plugins/cache/compound-engineering-plugin/ 2>/dev/null | grep -q . && echo "✅" || echo "⚠️")
-
-# Superpowers
-export CLAUDE_PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(ls -d ~/.claude/plugins/marketplaces/frad-dotclaude/superpowers 2>/dev/null || ls -d ~/.claude/plugins/cache/frad-dotclaude/superpowers/*/ 2>/dev/null | head -1 || echo "")}"
-SP_STATUS="⚠️"
-[[ -n "$CLAUDE_PLUGIN_ROOT" && -f "$CLAUDE_PLUGIN_ROOT/scripts/setup-superpower-loop.sh" ]] && SP_STATUS="✅"
+# 使用 ecf-init 的检测命令，输出统一格式的依赖状态
+# 完整环境和安装流程请运行: ecf-init --auto-install
 ```
 
-**用户确认 Matrix**:
+**依赖汇总** (检测项，检测方法来自 ecf-init):
+
+| 依赖 | 检测位置 | 影响层级 |
+|------|----------|----------|
+| OpenSpec CLI + Skills | 项目级 `.claude/skills/openspec-*` | Contract Layer |
+| Compound Engineering | `~/.claude/plugins/cache/compound-engineering-plugin/` | Knowledge Layer |
+| Superpowers@frad-dotclaude | `CLAUDE_PLUGIN_ROOT` + `setup-superpower-loop.sh` | Execution Layer |
+| skill-creator | `~/.claude/skills/skill-creator/` 或 `~/.claude/plugins/cache/claude-plugins-official/skill-creator/` | Skills Development |
+
+**用户确认 Matrix** (同 ecf-init 定义):
 
 | 依赖缺失类型 | 状态级别 | 用户选项 |
 |--------------|----------|----------|
-| OpenSpec Skills | Warning | 安装 / 跳过 (Brainstorming 替代) |
-| Compound Engineering | Warning | 安装 / 跳过 (直接写入 docs/solutions/) |
-| Superpowers (frad 未安装) | Warning | 安装 / 跳过 (官方版本 fallback) |
-| Superpowers (完全未安装) | **Critical** | 阻断流程，必须安装 |
-
-**会话缓存**: 用户选择存储在内存变量 `_AGENT_TEAMS_DEP_CONFIRMED`，避免同一会话重复询问。
-
-详细检测流程见 [dependency-check.md](references/dependency-check.md)。
+| OpenSpec Skills | Warning | 运行 `ecf-init --auto-install` / 跳过 (Brainstorming 替代) |
+| Compound Engineering | Warning | 运行 `ecf-init --auto-install` / 跳过 (直接写入 docs/solutions/) |
+| skill-creator | Warning | 运行 `ecf-init --auto-install` / 跳过 (仅 skill_development 场景需要) |
+| Superpowers (frad 未安装) | Warning | 运行 `ecf-init --auto-install` / 跳过 (官方版本 fallback) |
+| Superpowers (完全未安装) | **Critical** | 阻断流程，运行 `ecf-init --auto-install` |
 
 ##### Dependency Status Summary
 
 ```
 🔍 Dependency Check Summary
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-OpenSpec Skills:      [状态] [如有缺失显示列表]
+OpenSpec Skills:      [状态]
 Compound Engineering: [状态]
 Superpowers:          [状态]
+skill-creator:        [状态]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[如有 Critical 问题，显示建议操作]
+[如有缺失，建议运行: ecf-init --auto-install]
 ```
 
 ##### Step 3.5: Dependency Confirmation
 
-**⚠️ 检测到缺失依赖时，必须向用户确认处理方式。**
+**⚠️ 检测到缺失依赖时，引导用户使用 ecf-init 安装。**
 
-**会话缓存检查**: 如果 `_AGENT_TEAMS_DEP_CONFIRMED` 已存在，跳过此步骤。
+缺失依赖时的用户确认已统一到 ecf-init 的 Auto-Install 流程。在 ecf Pre-flight 中：
 
-**Critical 状态阻断**:
-- 如果 Superpowers 完全缺失（`CLAUDE_PLUGIN_ROOT` 为空），阻断流程并显示安装指引
-- 其他缺失类型为 Warning，允许用户选择跳过
-
-**用户确认格式** (使用 AskUserQuestion tool):
-
-```json
-{
-  "questions": [
-    {
-      "header": "缺失依赖",
-      "question": "检测到以下依赖缺失，如何处理？",
-      "multiSelect": true,
-      "options": [
-        {
-          "label": "安装 OpenSpec Skills (推荐)",
-          "description": "安装 openspec-* 技能，获得完整 Contract Layer 功能"
-        },
-        {
-          "label": "安装 Compound Engineering (推荐)",
-          "description": "安装 CE 插件，获得知识沉淀自动化功能"
-        },
-        {
-          "label": "安装 Superpowers@frad (推荐)",
-          "description": "安装 frad 版本 Superpowers，获得完整执行层功能"
-        },
-        {
-          "label": "跳过全部，使用 degraded 模式",
-          "description": "不安装任何依赖，功能将受限（OpenSpec 用 Brainstorming 替代，CE 直接写入 docs/solutions/）"
-        }
-      ]
-    }
-  ]
-}
-```
-
-**用户选择后**:
-- 选择"安装" → 显示对应安装命令，设置 `_AGENT_TEAMS_DEP_CONFIRMED=<type>:install`
-- 选择"跳过" → 设置 `_AGENT_TEAMS_DEP_CONFIRMED=<type>:skip`，继续 degraded 模式
-- 选择"跳过全部" → 设置 `_AGENT_TEAMS_DEP_CONFIRMED=all:skip`
+1. 检测到缺失 → 提示用户运行 `ecf-init --auto-install`
+2. 用户选择跳过 → 使用 degraded 模式（具体 fallback 策略见 ecf-init 用户确认 Matrix）
 
 **Degraded 模式警告**:
 ```
 ⚠️ Degraded 模式运行
-已跳过安装的依赖: [列表]
+已跳过的依赖: [列表]
 功能限制: [说明 fallback 策略]
+如需重新安装请运行: ecf-init --auto-install
 ```
 
 #### Step 4: Proceed to Intent Recognition
 
 **Only after pre-flight checks (Steps 1-3) pass**, proceed to Intent Recognition Flow below.
+
+**意图识别必须由当前 agent 直接执行**，不需要调用外部 Agent 或 API。当前 Claude Code session 已具备完整意图理解能力。
+
+**必须按照以下输出模板输出**，完成后再路由到下一步：
+
+```
+意图识别
+任务分析: <task description>
+  - 关键词: <extracted keywords 逗号分隔>
+  - 场景类型: <type> (<description>)
+  - 标准工作流: <workflow steps from mapping table>
+
+路由决策: <routing reason>
+  → 契约层入口: <entry point>
+```
+
+**示例输出 1**:
+```
+意图识别
+任务分析: 重构 parallel_state.py 的 initialize_model_parallel_wrapper 方法
+  - 关键词: 重构, 抽取公共逻辑, 高内聚低耦合
+  - 场景类型: refactor (代码重构)
+  - 标准工作流: brainstorming → writing-plans → ecf-execute → ecf-verify → ce:compound
+
+路由决策: 根据场景路由表，refactor 不需要 OpenSpec 变更管理
+  → 契约层入口: superpowers:brainstorming
+```
+
+**示例输出 2**:
+```
+意图识别
+任务分析: 优化 ecf skill 的意图识别输出格式，修复输出不符合要求问题
+  - 关键词: 优化, skills, 技能, SKILL.md, 输出格式
+  - 场景类型: skill_development (技能开发)
+  - 标准工作流: /opsx:propose → skill-creator → skill-quality-verification → /opsx:archive → ce:compound
+
+路由决策: skill_development 需要完整变更管理流程
+  → 契约层入口: /opsx:propose
+```
+
+完整规范见 [intent-recognition.md](references/intent-recognition.md)。
+
+**关键词匹配优先级规则**:
+- 如果包含 skill, 技能, SKILL.md, 优化技能, 技能开发, skill-creator, skill-quality-verification → **优先匹配 skill_development**
+- 如果仅包含 "优化" 但无 skill 相关关键词 → 根据上下文匹配 incremental 或 refactor
 
 **契约层入口路由决策表**:
 
