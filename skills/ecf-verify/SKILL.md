@@ -137,6 +137,35 @@ Per inconsistency item:
 - **[跳过]**: Record but don't fix (max 20%, high-impact items cannot skip)
 - **[重新验证]**: Re-run analyzer
 
+**知识检索集成**: 遇到不一致项时，自动检索 `docs/solutions/` 寻找历史修复方案。
+
+```bash
+# 在展示 Fix Options 前
+if [ -f "../.claude/.ecf-degraded.flag" ]; then
+    : # degraded 模式，跳过检索
+else
+    # 根据不一致类型检索解决方案
+    for item in "${inconsistencies[@]}"; do
+        severity=$(echo "$item" | jq -r '.severity')
+        desc=$(echo "$item" | jq -r '.description')
+        # 抽取关键词检索
+        results=$(grep -ril "$(echo "$desc" | cut -d' ' -f1-3)" docs/solutions/ 2>/dev/null)
+        if [ -n "$results" ]; then
+            echo "📚 知识库发现相关历史方案，可作为修复参考"
+        fi
+    done
+fi
+```
+
+**匹配行为**:
+| 情况 | 行为 |
+|------|------|
+| 匹配到历史方案 | 推荐对应 Fix Option + 方案参考 |
+| 无匹配 | 显示标准的 Fix Options |
+| degraded 模式 | 跳过检索 |
+
+详见 [knowledge-retrieval.md](../ecf/references/knowledge-retrieval.md) 的"自动异常场景检索"章节。
+
 ## Red Flags - STOP
 
 - "Tests pass, so it must be consistent"

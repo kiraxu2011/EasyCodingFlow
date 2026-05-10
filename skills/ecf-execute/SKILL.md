@@ -150,6 +150,45 @@ Task-002: ❌ FAIL (重试 1/2)
 - FAIL 任务保持在 `in_progress`
 - 最多 2 次重试，失败后升级
 
+**异常处理 - 知识检索集成**:
+
+当任务 FAIL 时，在重试前先执行知识检索：
+
+```bash
+# 检查 degraded 模式
+if [ -f "../.claude/.ecf-degraded.flag" ] || [ -f ".claude/.ecf-degraded.flag" ]; then
+    echo "⚠️ 知识检索不可用，直接重试"
+else
+    # 提取失败上下文关键词
+    error_keywords=$(echo "$task_error" | grep -oP '(error|fail|exception|missing|not found|permission denied)' | head -3)
+    
+    # 检索 docs/solutions/ 匹配历史方案
+    for kw in $error_keywords; do
+        results=$(grep -ril "$kw" docs/solutions/ 2>/dev/null)
+        [ -n "$results" ] && break
+    done
+    
+    if [ -n "$results" ]; then
+        echo "📚 知识库匹配到历史方案，优先应用修复"
+        # 应用 top-1 方案修复后重试
+    fi
+fi
+```
+
+**知识检索集成行为**:
+| 情况 | 行为 |
+|------|------|
+| degraded 模式 | 跳过检索，直接重试 |
+| 匹配到方案 | 应用历史方案修复后重试 |
+| 无匹配方案 | 使用默认重试逻辑，失败后升级 |
+
+**重试升级**:
+- 2 次重试均 FAIL → 执行升级流程
+- 升级时展示错误上下文和检索结果（如有）
+- 向编排层报告失败详情
+
+详细检索流程见 [knowledge-retrieval.md](../ecf/references/knowledge-retrieval.md) 的"自动异常场景检索"章节。
+
 ## Summary Output
 
 ```

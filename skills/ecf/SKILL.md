@@ -383,6 +383,104 @@ fi
 正在自动切换到并发执行模式...
 ```
 
+## 异常处理与知识检索
+
+**⚠️ 所有工作流在执行过程中遇到异常时，必须先进行知识检索，优先根据历史经验修复。**
+
+异常包括：Task 执行失败、Skill 调用异常、验证不通过、依赖安装失败等。
+
+### 处理流程
+
+```dot
+digraph exception_knowledge_flow {
+    rankdir=TB;
+    exception [label="工作流步骤异常", shape=box];
+    check_degraded [label="degraded flag 存在?", shape=diamond];
+    skip_kr [label="⚠️ 跳过知识检索\n直接向用户报告异常", shape=box];
+    search [label="检索 docs/solutions/\n关键词: 错误上下文 + 场景 tags", shape=box];
+    found [label="找到匹配方案?", shape=diamond];
+    top1 [label="取 Top-1 方案\n展示摘要并自动应用", shape=box];
+    top3 [label="展示 Top-3 方案\n用户选择执行", shape=box];
+    verify [label="验证修复效果", shape=box];
+    verified [label="验证通过?", shape=diamond];
+    continue [label="继续工作流", shape=box];
+    no_match [label="展示错误上下文", shape=box];
+    ask_user [label="提供替代方案\n用户确认处理方式", shape=diamond];
+
+    exception -> check_degraded;
+    check_degraded -> skip_kr [label="是"];
+    check_degraded -> search [label="否"];
+    search -> found;
+    found -> top1 [label="Top-1 tags 匹配 >=1"];
+    found -> top3 [label="多个匹配"];
+    found -> no_match [label="无匹配"];
+    top1 -> verify;
+    top3 -> verify;
+    verify -> verified;
+    verified -> continue [label="✅"];
+    verified -> search [label="❌ 修复无效\n重新检索并升级"];
+    no_match -> ask_user;
+    ask_user -> continue [label="用户决策完成"];
+}
+```
+
+### 集成层级
+
+| 层级 | 集成点 | 触发条件 | 行为 |
+|------|--------|----------|------|
+| 编排层 (Layer 0) | 工作流步骤执行后 | Skill 调用异常或返回 error | 检索 → 自动修复 → 重试 |
+| 执行层 (Layer 2) | ecf-execute 验证门控 | Task FAIL | 检索 → 应用修复 → 重试验证 |
+| 验证层 (Layer 2.5) | ecf-verify Phase 1 | 发现不一致项 | 检索 → 推荐修复方案 |
+
+### 执行规则
+
+1. **degraded 模式跳过**: 项目处于 degraded 模式时，跳过知识检索（知识检索功能不可用）
+2. **检索策略**: 使用 Grep 搜索 `docs/solutions/**/*.md`，关键词来自错误上下文（错误消息、失败类型、场景 tags）
+3. **匹配排序**: 按 frontmatter tags 匹配数降序排列，tags 匹配优先于正文关键词匹配
+4. **自动应用**: Top-1 结果 tags 匹配 >=1 时自动应用，应用后必须通过验证门控
+5. **用户选择**: 多个匹配时展示 Top-3 供用户选择；无匹配时展示错误上下文和替代方案
+6. **验证闭环**: 修复后必须验证通过，失败则重新检索或升级处理
+
+### 输出模板
+
+异常知识检索的结果使用以下模板输出：
+
+```
+📚 知识检索 (异常处理)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+异常: [error summary]
+层级: [编排层 / 执行层 / 验证层]
+检索: docs/solutions/ → [N] 个匹配
+
+Top 方案:
+1. [solution title]
+   匹配: [tag 匹配: N | 关键词匹配]
+   来源: [filename]
+   处理: [自动应用 / 待选择]
+
+结果: [✅ 修复成功 / ⚠️ 修复失败 / 🔄 用户决策中]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### 调用方式
+
+当工作流步骤异常时：
+
+```bash
+# 1. 检查 degraded 模式
+if [ -f ".claude/.ecf-degraded.flag" ]; then
+    echo "⚠️ 知识检索功能不可用，跳过检索"
+    # 直接向用户报告异常
+else
+    # 2. 执行知识检索 (详见 knowledge-retrieval.md)
+    grep_results=$(grep -ril "${error_keyword}" docs/solutions/ 2>/dev/null)
+    # 3. 按匹配规则处理结果
+    # 4. 自动应用或用户确认
+fi
+```
+
+实现细节见 [knowledge-retrieval.md](references/knowledge-retrieval.md) 的"自动异常场景检索"章节。
+
 ## Team Building
 
 | Complexity | Agents | Model |
@@ -403,6 +501,9 @@ fi
 - **未调用 ecf-execute 作为执行入口**
 - **跳过用户确认直接 fallback（必须先询问用户）**
 - **Critical 状态未阻断（Superpowers 完全缺失必须阻断）**
+- **工作流异常时未进行知识检索直接报错**
+- **知识检索匹配到方案但跳过验证门控**
+- **degraded 模式下仍尝试知识检索**
 
 **遇到以上**: 从相应步骤重新开始，遵循正确流程。
 
@@ -415,6 +516,7 @@ fi
 - [dependency-check.md](references/dependency-check.md) - 依赖检查完整参考
 - [superpowers-environment-check.md](references/superpowers-environment-check.md) - Superpowers 环境检查
 - [intent-recognition.md](references/intent-recognition.md) - 意图识别流程
+- [knowledge-retrieval.md](references/knowledge-retrieval.md) - 知识检索流程（含自动异常场景检索）
 - [knowledge-writing.md](references/knowledge-writing.md) - 知识沉淀流程
 - [converter/SKILL.md](references/converter/SKILL.md) - 产物转换
 
