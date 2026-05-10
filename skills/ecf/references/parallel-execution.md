@@ -11,10 +11,10 @@ digraph execution_mode {
     rankdir=TB;
     start [label="分析任务批次", shape=box];
     red_green [label="Red-Green Pair?\n(test + impl 同 NNN)", shape=diamond];
-    task_count [label="任务数量 >= 3?", shape=diamond];
+    task_count [label="任务数量 > 6?", shape=diamond];
     file_conflict [label="文件冲突?", shape=diamond];
-    team [label="Agent Team Mode\n(3+ Agent 并发)", shape=box];
-    subagent [label="Subagent Mode\n(2 Agent 并发)", shape=box];
+    team [label="Agent Team Mode\n(6+ Agent 并发)", shape=box];
+    subagent [label="Subagent Mode\n(2-6 Agent 并发)", shape=box];
     worktree [label="Worktree Isolation\n+ Agent Team", shape=box];
     linear [label="Linear Mode\n(顺序执行)", shape=box];
     
@@ -22,7 +22,7 @@ digraph execution_mode {
     red_green -> "Red-Green Pair Mode" [label="是"];
     red_green -> task_count [label="否"];
     task_count -> team [label="是"];
-    task_count -> subagent [label="否(2任务)"];
+    task_count -> subagent [label="否(2-6任务)"];
     task_count -> linear [label="否(1任务)"];
     team -> file_conflict;
     file_conflict -> worktree [label="是"];
@@ -32,7 +32,7 @@ digraph execution_mode {
 
 ## Execution Modes
 
-### Mode 1: Agent Team (推荐用于 3+ 任务)
+### Mode 1: Agent Team (推荐用于 6+ 任务)
 
 **特点**:
 - 团队成员可直接通信
@@ -61,7 +61,7 @@ execution:
 Skill("superpowers:agent-team-driven-development")
 ```
 
-### Mode 2: Subagent (用于 2 任务)
+### Mode 2: Subagent (用于 2-6 任务)
 
 **特点**:
 - 结果仅返回给调用者
@@ -168,8 +168,8 @@ execution:
 - Phase 3.3: 调用 `superpowers:agent-team-driven-development` 执行并发任务
 
 **Red-Green Pair**: 配对内顺序执行（test → impl），多配对并行
-**Agent Team**: 3+ 任务并发，团队成员可通信
-**Subagent**: 2 任务并行，无通信
+**Agent Team**: 6+ 任务并发，团队成员可通信
+**Subagent**: 2-6 任务并行，无通信
 **Linear**: 单任务或强依赖顺序执行（仅作为 fallback）
 
 **警告**: 不要使用 `superpowers:executing-plans` 作为入口，它可能输出顺序执行选择而非强制并发。

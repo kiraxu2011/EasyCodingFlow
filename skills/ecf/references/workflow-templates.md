@@ -30,8 +30,8 @@
 | 任务数量 | 执行模式 | 说明 |
 |----------|----------|------|
 | 1 | Linear | 单任务顺序执行 |
-| 2 | Subagent | 2 个 Agent 并行，无通信 |
-| 3+ | Agent Team | 3+ Agent 并发，可通信协作 |
+| 2-6 | Subagent | 2-6 个 Agent 并行，无通信 |
+| >6 | Agent Team | 6+ Agent 并发，可通信协作 |
 | Red-Green Pair | 配对模式 | 测试→实现顺序，多配对可并行 |
 
 **执行策略决策流程**:
@@ -41,10 +41,10 @@ digraph exec_decision {
     rankdir=TB;
     analyze [label="分析任务批次", shape=box];
     pair [label="Red-Green Pair?", shape=diamond];
-    count [label="任务数 >= 3?", shape=diamond];
+    count [label="任务数 > 6?", shape=diamond];
     conflict [label="文件冲突?", shape=diamond];
     team [label="Agent Team\n(可通信协作)", shape=box];
-    subagent [label="Subagent\n(2 Agent 并行)", shape=box];
+    subagent [label="Subagent\n(2-6 Agent 并行)", shape=box];
     worktree [label="Worktree Isolation\n+ Agent Team", shape=box];
     linear [label="Linear\n(顺序执行)", shape=box];
     
@@ -52,7 +52,7 @@ digraph exec_decision {
     pair -> "配对模式" [label="是"];
     pair -> count [label="否"];
     count -> team [label="是"];
-    count -> subagent [label="否(2)"];
+    count -> subagent [label="否(2-6)"];
     count -> linear [label="否(1)"];
     team -> conflict;
     conflict -> worktree [label="是"];
@@ -336,8 +336,8 @@ execution_config:
 
 | Mode | 使用场景 | Agent 数 | 通信能力 |
 |------|----------|----------|----------|
-| `agent_team` | 3+ 独立任务，需协作 | 3+ | ✅ 可互发消息 |
-| `subagent` | 2 独立任务 | 2 | ❌ 仅返回调用者 |
+| `agent_team` | >6 独立任务，需协作 | 6+ | ✅ 可互发消息 |
+| `subagent` | 2-6 独立任务 | 2-6 | ❌ 仅返回调用者 |
 | `red_green_pair` | BDD 测试+实现 | 2/配对 | ✅ 配对内顺序 |
 | `linear` | 单任务或强依赖 | 1 | ❌ 无 |
 
