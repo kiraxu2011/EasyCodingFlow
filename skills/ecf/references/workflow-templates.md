@@ -220,7 +220,8 @@ workflow:
 ```
 
 **Note**: Skills开发工作流与新需求开发的关键差异：
-- Execution layer 使用 `skill-creator`（TDD流程），而非 `superpowers:writing-plans`
+- Execution layer 使用 `skill-creator`（**TDD流程包含 eval 验证环节**），而非 `superpowers:writing-plans`
+- **所有技能开发场景**（新增技能、修改技能、优化技能）都必须完整执行 `skill-creator` TDD流程，**eval 验证环节禁止跳过**
 - Verification layer 使用 `skill-quality-verification`（检查frontmatter/CSO），而非 `ecf-verify`
 - 必须调用 `/opsx:archive` 完成变更生命周期闭环
 

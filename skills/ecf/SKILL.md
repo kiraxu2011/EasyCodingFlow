@@ -243,6 +243,25 @@ skill-creator:        [状态]
 - `brainstorming` 用于需要规划但不需要变更管理的场景
 - bug_fix/code_review 等跳过契约层，直接进入执行层
 
+---
+
+## Pre-flight Check Completion Validation
+
+```bash
+🔍 Pre-flight 完成验证
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ 参数检查完成: ARGUMENTS 非空 ✅
+✓ 初始化状态检查完成 ✅
+✓ 依赖环境检查完成 ✅
+✓ 缺失依赖处理完成 ✅
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ 验证通过，进入意图识别阶段
+```
+
+**验证规则** (详见 [phase-completion-validation.md](references/phase-completion-validation.md)):
+- 所有检查项完成 → 继续
+- 任何检查项未完成 → 中断流程，报告失败
+
 ## Red Flags - Pre-flight
 
 If you find yourself thinking:
@@ -351,6 +370,136 @@ OpenSpec 工具（/opsx:propose）返回通用提示 "Run /opsx:apply..."，
 2. `/ecf-execute` 强制加载 agent-team-driven-development，实现真正并发
 3. ecf 项目要求执行层统一入口，确保一致性和效率
 
+---
+
+## Contract Layer Completion Validation
+
+契约层完成后，根据入口类型验证产物：
+
+**当入口是 `/opsx:propose` 时**:
+```bash
+CHANGE_NAME=$(echo "$ARGUMENTS" | grep -oP '\w+[-_\w]+' | head -1)
+# 验证变更产物存在
+🔍 契约层完成验证
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ 变更目录已创建: openspec/changes/$CHANGE_NAME/ ✅
+✓ proposal.md 已生成: openspec/changes/$CHANGE_NAME/proposal.md ✅
+✓ design.md 已生成: openspec/changes/$CHANGE_NAME/design.md ✅
+✓ tasks.md 已生成: openspec/changes/$CHANGE_NAME/tasks.md ✅
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ 验证通过，进入执行层
+```
+
+**当入口是 `brainstorming` 时**:
+```bash
+🔍 契约层完成验证
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ Brainstorming 输出已完成 ✅
+✓ 关键需求已明确 ✅
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ 验证通过，进入执行层
+```
+
+**验证失败**时中断流程，显示缺失产物路径，不允许进入执行层。
+
+---
+
+## Execution Layer Completion Validation
+
+执行层完成后，根据执行入口验证产物：
+
+**当入口是 `ecf-execute` 时**:
+```bash
+🔍 执行层完成验证
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ 计划目录存在 ✅
+✓ 所有任务批次执行完成 ✅
+✓ 执行摘要已输出 ✅
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ 验证通过，进入验证层
+```
+
+**当入口是 `skill-creator` 时**:
+```bash
+🔍 执行层完成验证
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ skill-creator 流程执行完成 ✅
+✓ evals 工作区已创建 ✅
+✓ evals.json 已创建且非空 ✅
+✓ eval 验证已完成（无 FAIL 项） ✅
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ 验证通过，进入验证层
+```
+
+**当入口是 `systematic-debugging` 时**:
+```bash
+🔍 执行层完成验证
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ Root cause 分析完成 ✅
+✓ Fix 已应用 ✅
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ 验证通过，进入验证层
+```
+
+**当入口是 `ce-review` 时**:
+```bash
+🔍 执行层完成验证
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ Code review 完成 ✅
+✓ Review 报告已输出 ✅
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ 验证通过，进入知识沉淀层
+```
+
+**验证失败**时中断流程，不允许进入验证层。
+
+---
+
+## Verification Layer Completion Validation
+
+验证层完成后，验证产物：
+
+**当验证层是 `ecf-verify` 时**:
+```bash
+🔍 验证层完成验证
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ 设计目录存在 ✅
+✓ 三个并行分析器执行完成 ✅
+✓ 验证报告已写入 ✅
+✓ 架构文档更新完成（如需要）✅
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ 验证通过
+```
+
+**当验证层是 `skill-quality-verification` 时**:
+```bash
+🔍 验证层完成验证
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ frontmatter 检查完成 ✅
+✓ CSO 检查完成 ✅
+✓ 内容结构检查完成 ✅
+✓ 验证结果已输出 ✅
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ 验证通过
+```
+
+---
+
+## Archive Step Completion Validation (OpenSpec only)
+
+OpenSpec 变更必须执行归档，归档完成后验证：
+
+```bash
+🔍 归档完成验证
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ 变更已归档到 openspec/changes/archive/ ✅
+✓ 归档记录已写入 ✅
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ 验证通过，进入知识沉淀层
+```
+
+---
+
 ## Knowledge Layer (Layer 3)
 
 **⚠️ 每个工作流完成后必须触发知识沉淀。**
@@ -370,6 +519,26 @@ fi
 - 不要跳过知识沉淀步骤
 
 详细流程见 [knowledge-writing.md](references/knowledge-writing.md)。
+
+---
+
+## Knowledge Layer Completion Validation
+
+知识沉淀完成后验证：
+
+```bash
+🔍 知识沉淀完成验证
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ Solution 文档已写入 docs/solutions/ ✅
+✓ 知识沉淀流程完成 ✅
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ 工作流全程验证通过，完成！
+```
+
+**任何检查失败**:
+- 中断流程
+- 报告缺失产物
+- 修复后才能完成工作流
 
 ## Writing-Plans Phase 6 监控
 
@@ -509,6 +678,7 @@ fi
 
 ## References
 
+- [phase-completion-validation.md](references/phase-completion-validation.md) - 阶段完成验证统一规则
 - [intent-keywords.md](references/intent-keywords.md) - 关键词映射
 - [workflow-templates.md](references/workflow-templates.md) - 工作流模板
 - [workflow-completion-checklist.md](references/workflow-completion-checklist.md) - 工作流完成检查清单

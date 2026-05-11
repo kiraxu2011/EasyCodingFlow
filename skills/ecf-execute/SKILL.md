@@ -189,6 +189,29 @@ fi
 
 详细检索流程见 [knowledge-retrieval.md](../ecf/references/knowledge-retrieval.md) 的"自动异常场景检索"章节。
 
+## Execution Completion Validation
+
+After all batches complete, run final completion validation:
+
+```bash
+🔍 执行完成验证
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ 环境检查已完成 ✅
+✓ 计划路径存在且有效 ✅
+✓ 任务分析已完成 ✅
+✓ 执行模式已确定 ✅
+✓ 所有批次任务执行完成 ✅
+✓ 批次验证门控已通过 ✅
+✓ 执行摘要已输出 ✅
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ 验证通过，执行层完成
+```
+
+**If any check fails**:
+- Interrupt workflow
+- Report which check failed
+- Do not proceed to verification layer
+
 ## Summary Output
 
 ```
@@ -212,6 +235,7 @@ fi
 
 ## References
 
+- [phase-completion-validation.md](../ecf/references/phase-completion-validation.md) - 阶段完成验证统一规则
 - [parallel-execution.md](../ecf/references/parallel-execution.md) - 并发执行策略
 - [dag-scheduling.md](../ecf/references/dag-scheduling.md) - DAG 任务调度
 - [superpowers:executing-plans](https://github.com/frad-dotclaude/superpowers) - 原生执行 skill

@@ -185,6 +185,27 @@ fi
 | Single-direction verification | Bidirectional: spec→design AND design→spec |
 | No evidence output | Line numbers + content excerpt required |
 
+## Verification Completion Validation
+
+After all verification phases complete, run final self-validation:
+
+```bash
+🔍 验证完成验证
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ 设计路径存在且有效 ✅
+✓ 三个并行分析器执行完成 ✅
+✓ 结果聚合完成 ✅
+✓ 验证报告已写入且非空 ✅
+✓ 架构文档一致性检查完成（如需要）✅
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ 验证通过，验证层完成
+```
+
+**If any check fails**:
+- Interrupt workflow
+- Report which check failed
+- Do not proceed to archive or knowledge layer
+
 ## Summary Output
 
 ```
@@ -205,5 +226,6 @@ Phase 2 - Architecture-Doc:
 
 ## References
 
+- [phase-completion-validation.md](../ecf/references/phase-completion-validation.md) - 阶段完成验证统一规则
 - [analyzer-templates.md](../ecf/references/consistency-verification/analyzer-templates.md) - Sub-agent prompt templates
 - [report-format.md](../ecf/references/consistency-verification/report-format.md) - Report structure

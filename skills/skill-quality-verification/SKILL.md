@@ -72,6 +72,25 @@ description: Use when creating new skills, editing existing skills, or verifying
 6. Report: PASS or list violations
 ```
 
+## Quality Check Completion Validation
+
+After all quality checks complete, run final self-validation:
+
+```bash
+🔍 质量检查完成验证
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ Frontmatter 格式检查完成 ✅
+✓ Description CSO 检查完成 ✅
+✓ 内容结构检查完成 ✅
+✓ 验证结果输出已生成 ✅
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ 验证通过，质量检查完成
+```
+
+**If any check is missing**:
+- Interrupt and report which check was not executed
+- Do not report PASS until all checks complete
+
 ## Output Format
 
 ```
@@ -116,3 +135,7 @@ Violations: [list if FAIL]
 - 缺少 Overview 或 When to Use section
 
 **遇到以上**: 停止，修复 skill 文件后重新验证。
+
+## References
+
+- [phase-completion-validation.md](../ecf/references/phase-completion-validation.md) - 阶段完成验证统一规则

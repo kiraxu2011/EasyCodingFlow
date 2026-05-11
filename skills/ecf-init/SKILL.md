@@ -267,6 +267,27 @@ Auto-Install: [true/false]
 - Leaving partial initialization state
 - Auto-install 失败后未记录 Degraded 状态
 
+## Initialization Completion Validation
+
+After all initialization steps complete, run self-validation to verify all required artifacts created:
+
+```bash
+🔍 初始化完成验证
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ docs/solutions/ 目录已创建 ✅
+✓ docs/plans/ 目录已创建 ✅
+✓ docs/openspec/ 目录结构已创建 ✅
+✓ .claude/ecf_config.yaml 已生成且非空 ✅
+✓ .claude/.ecf-init.local.md 已写入且非空 ✅
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ 验证通过
+```
+
+**If any item fails**:
+- Report which directory/file is missing
+- Do NOT claim initialization complete
+- Prompt user to re-run initialization
+
 ## Summary Output
 
 ```
@@ -296,5 +317,6 @@ skill-creator:        [✅ 已安装 / ⚠️ 未安装 / 🔄 自动安装中]
 - Configuration schema: See `../ecf/references/config-schema.md`
 - Dependency check: See `../ecf/references/dependency-check.md`
 - Architecture templates: See `../ecf/references/architectures-templates.md`
+- Phase completion validation: See `../ecf/references/phase-completion-validation.md`
 - OpenSpec README: See `references/OpenSpec_README.md`
 - CE Plugin README: See `references/compound-engineering-plugin_README.md`

@@ -1,64 +1,26 @@
 {
-  "skill_name": "ecf",
+  "skill_name": "ecf-modification",
   "evals": [
     {
       "id": 1,
-      "name": "refactor-routing",
-      "prompt": "重构 initialize_model_parallel_wrapper 方法，使其更易维护",
-      "expected_output": "识别为 refactor 场景，调用 Skill(\"superpowers:brainstorming\") 作为契约层入口",
+      "prompt": "/ecf 创建一个新的 skill 来处理 PDF 文件解析",
+      "expected_output": "ecf 应检测到技能相关关键词，路由到 skill-creator（而非 writing-skills），启动标准 Skills开发流程",
       "files": [],
-      "assertions": [
-        {
-          "name": "识别为 refactor 场景",
-          "check": "输出中明确识别场景为 refactor 或 代码重构"
-        },
-        {
-          "name": "调用 brainstorming 入口",
-          "check": "契约层入口为 Skill(\"superpowers:brainstorming\") 或 brainstorming"
-        },
-        {
-          "name": "不调用 /opsx:propose",
-          "check": "不应调用 /opsx:propose 或 OpenSpec propose"
-        }
-      ]
+      "eval_name": "skills-development-routing"
     },
     {
       "id": 2,
-      "name": "new-feature-routing",
-      "prompt": "开发一个新的数据导出功能，支持 CSV 和 JSON 格式",
-      "expected_output": "识别为 new_feature 场景，调用 /opsx:propose 作为契约层入口",
+      "prompt": "/ecf-init 初始化项目",
+      "expected_output": "ecf-init 应在依赖检查中检测 skill-creator 安装状态，显示 Dependency Status Summary 包含 skill-creator 行",
       "files": [],
-      "assertions": [
-        {
-          "name": "识别为 new_feature 场景",
-          "check": "输出中明确识别场景为 new_feature 或 新需求开发"
-        },
-        {
-          "name": "调用 /opsx:propose 入口",
-          "check": "契约层入口为 /opsx:propose 或 opsx:propose"
-        }
-      ]
+      "eval_name": "init-dependency-check"
     },
     {
       "id": 3,
-      "name": "bugfix-routing",
-      "prompt": "修复登录页面在移动端无法正常显示的问题",
-      "expected_output": "识别为 bug_fix 场景，跳过契约层，直接调用 systematic-debugging",
-      "files": [],
-      "assertions": [
-        {
-          "name": "识别为 bug_fix 场景",
-          "check": "输出中明确识别场景为 bug_fix 或 Bug修复"
-        },
-        {
-          "name": "跳过契约层",
-          "check": "明确说明跳过契约层或直接进入执行层"
-        },
-        {
-          "name": "调用 systematic-debugging",
-          "check": "执行层入口为 Skill(\"systematic-debugging\") 或 systematic-debugging"
-        }
-      ]
+      "prompt": "查看 CLAUDE.md 中的 Skills development workflow 模板",
+      "expected_output": "Workflow Templates 表格中 Skills development 行应显示 skill-creator（而非 Writing-Skills），Execution layer 说明应引用 skill-creator",
+      "files": ["CLAUDE.md"],
+      "eval_name": "claude-md-workflow-reference"
     }
   ]
 }
