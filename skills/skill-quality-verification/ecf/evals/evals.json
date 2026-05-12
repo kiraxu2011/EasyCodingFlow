@@ -1,0 +1,16 @@
+{
+  "skill_name": "ecf",
+  "evals": [
+    {
+      "id": 1,
+      "name": "parallel-execution-threshold-consistency",
+      "prompt": "验证 ecf skill 的并发执行模式阈值是否一致：检查 parallel-execution.md、workflow-templates.md、SKILL.md 中关于 Agent Team 切换阈值是否为 >6（或 6+），Subagent 范围是否为 2-6，Linear 是否为 1 任务。确认不存在 3+ 或 >=3 的旧阈值描述。",
+      "expected_output": "三个文件阈值一致：Agent Team 在 >6 任务时启用，Subagent 覆盖 2-6 任务，Linear 用于 1 任务。无残留的 3+ 或 >=3 描述。",
+      "files": [
+        "skills/ecf/SKILL.md",
+        "skills/ecf/references/parallel-execution.md",
+        "skills/ecf/references/workflow-templates.md"
+      ]
+    }
+  ]
+}

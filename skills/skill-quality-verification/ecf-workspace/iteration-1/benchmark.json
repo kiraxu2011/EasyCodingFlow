@@ -1,0 +1,104 @@
+{
+  "skill_name": "ecf",
+  "iteration": 1,
+  "timestamp": "2026-05-08",
+  "configs": [
+    {
+      "name": "with_skill",
+      "description": "新版 workflow-templates.md (使用 compound-engineering:ce-review)"
+    },
+    {
+      "name": "old_skill",
+      "description": "旧版 workflow-templates.md (使用 superpowers:requesting/receiving-code-review)"
+    }
+  ],
+  "evals": [
+    {
+      "name": "review-pr-code",
+      "assertions": ["triggers_code_review_workflow", "uses_ce_code_review", "not_uses_superpowers_review"],
+      "results": {
+        "with_skill": {
+          "passed": 3,
+          "total": 3,
+          "pass_rate": 1.0,
+          "total_tokens": 27772,
+          "duration_ms": 57478
+        },
+        "old_skill": {
+          "passed": 1,
+          "total": 3,
+          "pass_rate": 0.33,
+          "total_tokens": 25936,
+          "duration_ms": 24953
+        }
+      }
+    },
+    {
+      "name": "审查技能文件修改",
+      "assertions": ["triggers_code_review_workflow", "uses_ce_code_review"],
+      "results": {
+        "with_skill": {
+          "passed": 2,
+          "total": 2,
+          "pass_rate": 1.0,
+          "total_tokens": 26212,
+          "duration_ms": 29638
+        },
+        "old_skill": {
+          "passed": 1,
+          "total": 2,
+          "pass_rate": 0.5,
+          "total_tokens": 22570,
+          "duration_ms": 20805
+        }
+      }
+    },
+    {
+      "name": "分支代码审查",
+      "assertions": ["triggers_code_review_workflow", "uses_ce_code_review"],
+      "results": {
+        "with_skill": {
+          "passed": 2,
+          "total": 2,
+          "pass_rate": 1.0,
+          "total_tokens": 25908,
+          "duration_ms": 25327
+        },
+        "old_skill": {
+          "passed": 1,
+          "total": 2,
+          "pass_rate": 0.5,
+          "total_tokens": 22409,
+          "duration_ms": 20303
+        }
+      }
+    }
+  ],
+  "summary": {
+    "with_skill": {
+      "total_passed": 7,
+      "total_assertions": 7,
+      "overall_pass_rate": 1.0,
+      "avg_tokens": 26630.7,
+      "avg_duration_ms": 37481
+    },
+    "old_skill": {
+      "total_passed": 3,
+      "total_assertions": 7,
+      "overall_pass_rate": 0.43,
+      "avg_tokens": 23638.3,
+      "avg_duration_ms": 22020
+    },
+    "delta": {
+      "pass_rate_improvement": 0.57,
+      "token_delta": 2992.4,
+      "duration_delta_ms": 15461
+    }
+  },
+  "analyst_notes": [
+    "新版模板正确使用 compound-engineering:ce-review 作为执行层技能",
+    "旧版模板使用 superpowers:requesting/receiving-code-review 两阶段流程",
+    "技能名称从 ce-code-review 修正为 compound-engineering:ce-review",
+    "新版模板增加了 CE 插件未安装时的 fallback 说明"
+  ]
+}
