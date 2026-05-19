@@ -1,0 +1,382 @@
+{
+  "skill_name": "ecf-init",
+  "evals": [
+    {
+      "id": 1,
+      "name": "idempotent-design-verification",
+      "prompt": "验证 ecf-init 的幂等性设计：SKILL.md 应当声明 Idempotent initialization - safe to run multiple times, only creates missing components。",
+      "expected_output": "SKILL.md 包含幂等性设计声明，多次运行安全",
+      "files": [
+        "skills/ecf-init/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "idempotent-declaration-exists",
+          "description": "幂等性设计声明存在",
+          "expected": "包含 Idempotent initialization",
+          "check": "grep -c 'Idempotent initialization' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "safe-multiple-runs",
+          "description": "声明多次运行安全",
+          "expected": "包含 safe to run multiple times",
+          "check": "grep -c 'safe to run multiple times' skills/ecf-init/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "argument-parsing-all-arguments",
+      "prompt": "验证所有命令行参数定义完整：--force, --minimal, --auto-install, --analyze 都应当在 SKILL.md Arguments 章节定义。",
+      "expected_output": "四个参数都有清晰的描述",
+      "files": [
+        "skills/ecf-init/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "force-argument-defined",
+          "description": "--force 参数已定义",
+          "expected": "包含 --force 说明",
+          "check": "grep -c -- '--force' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "minimal-argument-defined",
+          "description": "--minimal 参数已定义",
+          "expected": "包含 --minimal 说明",
+          "check": "grep -c -- '--minimal' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "auto-install-argument-defined",
+          "description": "--auto-install 参数已定义",
+          "expected": "包含 --auto-install 说明",
+          "check": "grep -c -- '--auto-install' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "analyze-argument-defined",
+          "description": "--analyze 参数已定义",
+          "expected": "包含 --analyze 说明",
+          "check": "grep -c -- '--analyze' skills/ecf-init/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "dependency-detection-four-deps",
+      "prompt": "验证四依赖检测逻辑完整：应当检测 OpenSpec CLI + Skills、Compound Engineering、Superpowers、skill-creator 四个依赖。",
+      "expected_output": "SKILL.md Environment Check 章节包含四个依赖的检测方法",
+      "files": [
+        "skills/ecf-init/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "openspec-detection-exists",
+          "description": "OpenSpec CLI + Skills 检测存在",
+          "expected": "包含 OpenSpec CLI 检测",
+          "check": "grep -c -i 'openspec' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "ce-detection-exists",
+          "description": "Compound Engineering 检测存在",
+          "expected": "包含 Compound Engineering 检测",
+          "check": "grep -c -i 'compound' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "superpowers-detection-exists",
+          "description": "Superpowers 检测存在",
+          "expected": "包含 Superpowers 检测",
+          "check": "grep -c -i 'superpowers' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "skill-creator-detection-exists",
+          "description": "skill-creator 检测存在（两个安装位置）",
+          "expected": "包含 skill-creator 检测两个安装位置",
+          "check": "grep -c 'SC_INSTALLED=false' skills/ecf-init/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "directory-structure-correct",
+      "prompt": "验证目标目录结构定义正确：应当包含 docs/solutions, docs/plans, docs/openspec/*, .claude 等必需目录。",
+      "expected_output": "SKILL.md Directory Structure 章节列出所有必需目录",
+      "files": [
+        "skills/ecf-init/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "docs-solutions-expected",
+          "description": "期望 docs/solutions 目录",
+          "expected": "包含 docs/solutions/ 定义",
+          "check": "grep -c 'docs/solutions' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "docs-plans-expected",
+          "description": "期望 docs/plans 目录",
+          "expected": "包含 docs/plans/ 定义",
+          "check": "grep -c 'docs/plans' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "docs-openspec-expected",
+          "description": "期望 docs/openspec 目录结构",
+          "expected": "包含 docs/openspec/ 定义",
+          "check": "grep -c 'docs/openspec' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "claude-config-expected",
+          "description": "期望 .claude/ecf_config.yaml",
+          "expected": "包含 .claude/ecf_config.yaml 定义",
+          "check": "grep -c 'ecf_config.yaml' skills/ecf-init/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "auto-install-flow-defined",
+      "prompt": "验证 --auto-install 流程定义完整：应当有流程图，并且包含每个依赖的具体安装命令。",
+      "expected_output": "包含 Auto-Install Flow 流程图，以及 OpenSpec、Compound Engineering、Superpowers、skill-creator 各自的安装命令",
+      "files": [
+        "skills/ecf-init/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "auto-install-graph-exists",
+          "description": "Auto-Install 流程图存在",
+          "expected": "包含 dot 流程图定义",
+          "check": "grep -c 'digraph.*auto_install' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "openspec-install-command-exists",
+          "description": "OpenSpec 安装命令存在",
+          "expected": "包含 npm install @fission-ai/openspec",
+          "check": "grep -c 'npm install.*openspec' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "ce-install-command-exists",
+          "description": "Compound Engineering 安装命令存在",
+          "expected": "包含 /plugin marketplace add EveryInc/compound-engineering-plugin",
+          "check": "grep -c 'compound-engineering-plugin' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "superpowers-install-command-exists",
+          "description": "Superpowers 安装命令存在",
+          "expected": "包含 frad-dotclaude/superpowers",
+          "check": "grep -c 'frad-dotclaude/superpowers' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "skill-creator-install-command-exists",
+          "description": "skill-creator 安装命令存在（自动安装流程）",
+          "expected": "包含 claude plugin marketplace install skill-creator",
+          "check": "grep -c 'skill-creator.*claude plugin' skills/ecf-init/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "completion-self-validation",
+      "prompt": "验证初始化完成自验证逻辑：应当有验证清单，检查所有必需产物是否创建成功。",
+      "expected_output": "SKILL.md 包含 Initialization Completion Validation 章节，列出所有验证项，以及失败处理流程",
+      "files": [
+        "skills/ecf-init/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "validation-checklist-exists",
+          "description": "验证清单存在",
+          "expected": "包含 Initialization Completion Validation",
+          "check": "grep -c 'Initialization Completion Validation' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "five-check-items",
+          "description": "至少有 5 个检查项",
+          "expected": "验证清单包含 5 项检查",
+          "check": "awk '/Initialization Completion Validation/{f=1; next} f && /^✓/ {n++} END{exit n >= 5 ? 0 : 1}' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "failure-handling-defined",
+          "description": "失败处理流程定义",
+          "expected": "验证失败提示重新运行",
+          "check": "grep -c 're-run initialization\\|重新运行' skills/ecf-init/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "project-status-detection",
+      "prompt": "验证项目状态检测逻辑：应当根据现有代码文件判断是空项目还是存量项目，不同场景走不同流程。",
+      "expected_output": "包含空项目和存量项目检测代码，空项目用空白模板，存量项目执行深度分析",
+      "files": [
+        "skills/ecf-init/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "detection-code-exists",
+          "description": "检测代码存在",
+          "expected": "包含 find 命令检测代码文件",
+          "check": "grep -c 'find . -name' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "empty-project-flow",
+          "description": "空项目流程定义",
+          "expected": "空项目创建空白模板",
+          "check": "grep -c '空项目直接创建空白模板' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "legacy-project-flow",
+          "description": "存量项目流程定义",
+          "expected": "存量项目执行深度代码分析",
+          "check": "grep -c '存量项目执行深度代码分析' skills/ecf-init/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "overwrite-protection-rule",
+      "prompt": "验证覆盖保护规则：没有 --force 参数时禁止覆盖用户已有文件。",
+      "expected_output": "Red Flags 章节包含禁止覆盖规则",
+      "files": [
+        "skills/ecf-init/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "overwrite-protection-in-red-flags",
+          "description": "Red Flags 包含覆盖保护",
+          "expected": "Overwriting user files without --force 是 Red Flag",
+          "check": "grep -c 'Overwriting user files without\\|不覆盖用户文件' skills/ecf-init/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "red-flags-complete",
+      "prompt": "验证 Red Flags 清单完整性：应当列出所有禁止行为。",
+      "expected_output": "Red Flags 至少包含 4 项：Creating outside root, Overwrite without force, Leaving partial state, Auto-install failure degraded",
+      "files": [
+        "skills/ecf-init/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "red-flags-count",
+          "description": "Red Flags 条目数 ≥ 4",
+          "expected": "至少 4 个 Red Flag 条目",
+          "check": "awk '/Red Flags/{f=1; next} f && /^- /{n++} END{exit n >= 4 ? 0 : 1}' skills/ecf-init/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "summary-output-format",
+      "prompt": "验证初始化完成输出格式：应当有固定的总结输出模板，包含 Environment Check 和 Initialization Summary 两个部分。",
+      "expected_output": "SKILL.md Summary Output 章节包含完整模板，使用分隔线，状态用 ✅/⚠️ 标记",
+      "files": [
+        "skills/ecf-init/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "summary-template-exists",
+          "description": "总结输出模板存在",
+          "expected": "包含 Summary Output 模板定义",
+          "check": "grep -c 'Summary Output' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "environment-check-section",
+          "description": "包含 Environment Check 区段",
+          "expected": "有 Environment Check 部分",
+          "check": "grep -c 'Environment Check' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "initialization-summary-section",
+          "description": "包含 Initialization Summary 区段",
+          "expected": "有 Initialization Summary 部分",
+          "check": "grep -c 'Initialization Summary' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "uses-emoji-status",
+          "description": "使用 ✅⚠️ emoji 标记状态",
+          "expected": "模板中包含 ✅ 和 ⚠️",
+          "check": "grep -c '✅.*⚠️' skills/ecf-init/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "skill-creator-two-locations",
+      "prompt": "验证 skill-creator 检测逻辑支持两个安装位置：~/.claude/skills/skill-creator 和 ~/.claude/plugins/cache/claude-plugins-official/skill-creator。",
+      "expected_output": "SKILL.md 包含检测两个位置的代码逻辑",
+      "files": [
+        "skills/ecf-init/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "two-locations-check",
+          "description": "检测两个安装位置",
+          "expected": "SC_INSTALLED 逻辑检查两个目录",
+          "check": "grep -c 'SC_INSTALLED=false' skills/ecf-init/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "name": "eval-structure-consistent-with-ecf",
+      "prompt": "验证 ecf-init evals.json 结构与 ecf 主技能 evals.json 一致，遵循相同格式约定。",
+      "expected_output": "顶级结构一致，每个评估用例结构一致，每个断言结构一致",
+      "files": [
+        "skills/ecf/evals/evals.json",
+        "skills/ecf-init/evals/evals.json"
+      ],
+      "assertions": [
+        {
+          "name": "top-level-keys-match",
+          "description": "顶级键一致（skill_name, evals）",
+          "expected": "两个文件都有 skill_name 和 evals 顶级键",
+          "check": "python3 -c 'import json; a=json.load(open(\"skills/ecf/evals/evals.json\")); b=json.load(open(\"skills/ecf-init/evals/evals.json\")); exit(0) if set(a.keys()) == set(b.keys()) else exit(1)'"
+        },
+        {
+          "name": "eval-keys-match",
+          "description": "每个评估用例键一致（id, name, prompt, expected_output, files, assertions）",
+          "expected": "ecf-init 的评估用例包含所有必需键",
+          "check": "python3 -c 'import json; a=json.load(open(\"skills/ecf/evals/evals.json\")); b=json.load(open(\"skills/ecf-init/evals/evals.json\")); a_keys=set(a[\"evals\"][0].keys()); b_keys=set(b[\"evals\"][0].keys()); exit(0) if a_keys == b_keys else exit(1)'"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "name": "architecture-docs-generation",
+      "prompt": "验证架构文档生成逻辑：--analyze 参数时对存量项目执行深度代码分析，生成 architecture.md 和 modules.md。",
+      "expected_output": "SKILL.md 包含存量项目架构文档生成流程说明",
+      "files": [
+        "skills/ecf-init/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "architecture-generation-mentioned",
+          "description": "提到架构文档生成",
+          "expected": "包含 architecture.md 和 modules.md 生成",
+          "check": "grep -c -E 'architecture\\.md.*modules\\.md' skills/ecf-init/SKILL.md"
+        },
+        {
+          "name": "reference-architectures-templates",
+          "description": "引用 ecf/references/architectures-templates.md",
+          "expected": "包含指向 architectures-templates.md 的引用",
+          "check": "grep -c 'architectures-templates.md' skills/ecf-init/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "name": "backup-on-force",
+      "prompt": "验证 --force 参数行为：强制重新初始化时，应当将现有文件备份到 .backup/ 目录。",
+      "expected_output": "SKILL.md 中 --force 参数说明提到备份现有文件",
+      "files": [
+        "skills/ecf-init/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "force-backup-documented",
+          "description": "--force 备份行为已文档化",
+          "expected": "--force 说明包含备份现有文件到 .backup",
+          "check": "grep -B2 -A2 'force' skills/ecf-init/SKILL.md | grep -c 'backup\\|.backup'"
+        }
+      ]
+    }
+  ]
+}

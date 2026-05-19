@@ -1,0 +1,94 @@
+{
+  "skill_name": "agent-team-orchestrator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "我需要为一个高并发的订单系统设计新的库存扣减方案。当前方案在每秒1000单时会出现超卖问题，需要设计一个既能保证一致性又能支撑高并发的库存扣减架构。请帮我做技术方案的头脑风暴。",
+      "expected_output": "Orchestrator produces a consensus report with: 1) Multiple independent agent analyses with different model perspectives 2) Cross-calibration results showing challenged assumptions 3) Final recommendation with risk analysis",
+      "files": [],
+      "expectations": [
+        "Output mentions at least 2 different model names (opus, sonnet, or haiku)",
+        "Output contains independent analysis sections from multiple agents BEFORE any cross-calibration",
+        "Output includes a cross-calibration or challenge section where agents critique each other's work",
+        "Output includes a final consensus recommendation with rationale",
+        "Output structure follows three-phase pipeline: independent phase → cross-calibration → consensus"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Review this PR: we added a Redis cache layer to the user session service at src/auth/session.py, but I'm worried about cache invalidation race conditions and memory pressure. The diff is about 200 lines. 请帮我做code review。",
+      "expected_output": "Orchestrator produces a code review consensus report with: 1) Multiple independent reviews with clear stance labeling (MUST_FIX/SHOULD_FIX/OK) 2) Cross-calibration of findings 3) No ambiguous stance language",
+      "files": [],
+      "expectations": [
+        "Each finding has an explicit stance label: MUST_FIX, SHOULD_FIX, or OK",
+        "No ambiguous stance phrases appear in findings (修不修都行, 可选, 建议考虑, etc.)",
+        "Multiple independent review perspectives are included before cross-calibration",
+        "Cross-calibration section shows agents challenging each other's findings",
+        "Final report includes a deduplicated MUST_FIX checklist"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "快速模式 -- 帮我简单想一下这个API的分页方案应该用offset还是cursor based，数据量不大，几百条而已。",
+      "expected_output": "Orchestrator detects '快速模式' keyword and skips three-phase pipeline, directly invoking the brainstorming skill instead",
+      "files": [],
+      "expectations": [
+        "Output does NOT contain multi-agent orchestration or cross-calibration structure",
+        "Output recognizes fast/skip mode and provides a direct answer",
+        "Output is concise and fits the '快速模式' intent (no three-phase pipeline overhead)"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "启用文件输出配置，对一个简单的API设计做头脑风暴，要求设计一个用户认证中间件，支持JWT和session两种方式。验证各阶段产物能正确写入markdown文件。",
+      "expected_output": "Orchestrator creates output directory and writes three markdown files with all phase artifacts: phase-1-independent-thinking.md, phase-2-cross-calibration.md, phase-3-consensus-report.md",
+      "files": [],
+      "expectations": [
+        "Orchestrator creates output directory (default .agent-team-output/) with a run-id subdirectory in format ato-YYYYMMDD-HHMMSS",
+        "Orchestrator writes Phase 1 full output to phase-1-independent-thinking.md with each agent separated in sections",
+        "Orchestrator writes Phase 2 cross-calibration output to phase-2-cross-calibration-round-1.md",
+        "Orchestrator writes final consensus report to phase-3-consensus-report.md matching the conversation output",
+        "File output does not interrupt the main workflow and consensus report is still produced in conversation"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "配置启用 consensus_strategy: decentralized_debate，对一个简单的技术选型问题（关系型数据库 vs 文档型数据库）做头脑风暴。验证集体辩论流程能正常执行，每个agent参与辩论并更新立场。",
+      "expected_output": "Orchestrator prompts user for cost confirmation before starting debate, then runs multi-round debate where each agent updates positions, and produces a final consensus report showing agent final positions on any remaining disagreements",
+      "files": [],
+      "expectations": [
+        "Orchestrator detects consensus_strategy: decentralized_debate configuration",
+        "Orchestrator displays cost increase prompt and asks for user confirmation before starting debate",
+        "Orchestrator launches multiple rounds of debate with all agents participating",
+        "Each agent retains original identity and model across debate rounds",
+        "Final consensus report shows consensus points and any remaining disagreements with agent final positions",
+        "If all disagreements are resolved before max rounds, orchestrator stops early when consensus_early_stop: true"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "--consensus_strategy=decentralized_debate --cross_calibration_rounds=2 在命令行中覆盖配置，帮我分析一下微服务和单体架构各自的适用场景，我应该怎么选。",
+      "expected_output": "Orchestrator parses command-line arguments, overrides configuration with the provided values, prompts for user confirmation due to high-cost settings, then executes with the overridden configuration",
+      "files": [],
+      "expectations": [
+        "Orchestrator correctly parses --key=value arguments from the command line",
+        "Orchestrator overrides consensus_strategy to decentralized_debate and cross_calibration_rounds to 2",
+        "Orchestrator prompts for user confirmation because both high-cost conditions are true",
+        "Orchestrator runs 2 cross-calibration rounds (writes two round files)",
+        "Orchestrator runs decentralized debate with multiple rounds"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "--models=opus,sonnet 帮我做一个简单的头脑风暴，讨论一下HTTP REST vs GraphQL for a new API。验证配置中模型列表解析正确，只启动2个agents。",
+      "expected_output": "Orchestrator parses --models=opus,sonnet from command line, launches exactly 2 agents (one opus, one sonnet) in Phase 1",
+      "files": [],
+      "expectations": [
+        "Orchestrator correctly parses comma-separated models from command line argument",
+        "Phase 1 launches exactly 2 agents (no more, no less)",
+        "Each agent uses the specified model (one opus, one sonnet)",
+        "Orchestrator completes full three-phase pipeline with 2 agents"
+      ]
+    }
+  ]
+}

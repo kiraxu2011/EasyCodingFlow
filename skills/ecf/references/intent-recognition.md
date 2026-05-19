@@ -77,7 +77,7 @@ See [intent-keywords.md](./intent-keywords.md) for full keyword mapping.
 | refactor | `brainstorming` → `writing-plans` → `ecf-execute` → `ecf-verify` → `ce:compound` |
 | bug_fix | `systematic-debugging` → `fix` → `ecf-verify` → `ce:compound` |
 | code_review | `ce-review` → `ce:compound` |
-| incremental | `/opsx:propose` → `executing-plans` → `ecf-verify` → `/opsx:archive` → `ce:compound` |
+| incremental | `/opsx:propose` → `ecf-execute` → `ecf-verify` → `/opsx:archive` → `ce:compound` |
 | test_coverage | `BDD` → `ecf-verify` → `ce:compound` |
 | documentation | `direct execution` |
 
@@ -128,4 +128,46 @@ See [intent-keywords.md](./intent-keywords.md) for full keyword mapping.
 
 路由决策: skill_development 需要完整变更管理流程
   → 契约层入口: /opsx:propose
+```
+
+## Output Format Specification
+
+### Status Icons
+
+| Icon | Meaning |
+|------|---------|
+| 📍 | Phase start |
+| ✅ | Task completed |
+| ⚠️ | Failure/warning |
+| 📊 | Summary report |
+
+### Phase Start
+
+```
+📍 [Phase Name] 启动
+预期任务: [N] 个
+```
+
+### Task Complete
+
+```
+✅ [Role] 完成: [Summary]
+```
+
+### Failure
+
+```
+⚠️ 任务 [ID] 执行失败
+原因: [Reason]
+```
+
+### Summary Report
+
+```
+📊 执行汇总
+━━━━━━━━━━━━━━━━━━━━
+总任务数: [N]
+成功: [M] | 失败: [K] | 跳过: [J]
+━━━━━━━━━━━━━━━━━━━━
+结论: [Summary]
 ```

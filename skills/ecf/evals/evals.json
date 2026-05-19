@@ -10,6 +10,632 @@
         "skills/ecf/SKILL.md",
         "skills/ecf/references/parallel-execution.md",
         "skills/ecf/references/workflow-templates.md"
+      ],
+      "assertions": [
+        {
+          "name": "agent-team-threshold-gt-6",
+          "description": "Agent Team 模式启用阈值为 >6 或 6+",
+          "expected": "Agent Team 启用条件为 >6 独立任务",
+          "check": "grep -cE '>6|6\\+' skills/ecf/SKILL.md skills/ecf/references/parallel-execution.md skills/ecf/references/workflow-templates.md"
+        },
+        {
+          "name": "subagent-range-2-to-6",
+          "description": "Subagent 覆盖 2-6 任务范围",
+          "expected": "Subagent 用于 2-6 独立任务",
+          "check": "grep -c '≤6' skills/ecf/SKILL.md skills/ecf/references/parallel-execution.md skills/ecf/references/workflow-templates.md"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "preflight-empty-arguments",
+      "prompt": "验证 /ecf 在空参数时的行为：执行 empty arguments check 时，应当输出空参数提示模板并停止流程。",
+      "expected_output": "输出 Agent-Teams 帮手提示信息，不进入 intent recognition",
+      "files": [
+        "skills/ecf/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "empty-arg-prompt-exists",
+          "description": "SKILL.md 包含空参数提示模板",
+          "expected": "包含 Agent-Teams 操作引导",
+          "check": "grep -c 'Agent-Teams' skills/ecf/SKILL.md"
+        },
+        {
+          "name": "stop-instruction-exists",
+          "description": "空参数时有 STOP 指令",
+          "expected": "包含 STOP 标记",
+          "check": "grep -c 'STOP' skills/ecf/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "preflight-degraded-mode",
+      "prompt": "验证 project 未初始化时的 degraded 模式流程：当 docs/solutions/ 或 .claude/ecf_config.yaml 缺失时，应提示初始化并提供 degraded 选项。",
+      "expected_output": "提示缺失项并引导运行 /ecf-init。用户拒绝后创建 degraded flag，继续意图识别。",
+      "files": [
+        "skills/ecf/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "degraded-flag-creation",
+          "description": "degraded 模式创建 flag 文件",
+          "expected": "包含 .ecf-degraded.flag 创建",
+          "check": "grep -c 'degraded' skills/ecf/SKILL.md"
+        },
+        {
+          "name": "init-prompt-exists",
+          "description": "缺失依赖时提示初始化",
+          "expected": "包含 ecf-init 引导",
+          "check": "grep -c 'ecf-init' skills/ecf/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "intent-recognition-skill-priority",
+      "prompt": "验证 skill_development 场景的最高优先级：当用户输入同时包含 skill 关键词（如 'SKILL.md'）和 bug/fix 关键词时，应当强制分类为 skill_development，而不是 bug_fix。",
+      "expected_output": "包含 skill 关键词时强制优先匹配 skill_development，contract entry 为 /opsx:propose",
+      "files": [
+        "skills/ecf/SKILL.md",
+        "skills/ecf/references/intent-keywords.md"
+      ],
+      "assertions": [
+        {
+          "name": "skill-keyword-priority",
+          "description": "skill 关键词最高优先级规则存在",
+          "expected": "skill 关键词强制优先匹配 skill_development",
+          "check": "grep -c '最高优先级' skills/ecf/SKILL.md skills/ecf/references/intent-keywords.md"
+        },
+        {
+          "name": "opsx-propose-for-skill-dev",
+          "description": "skill_development 契约层入口为 /opsx:propose",
+          "expected": "skill_development → /opsx:propose",
+          "check": "grep -c 'skill_development.*/opsx:propose' skills/ecf/SKILL.md skills/ecf/references/intent-keywords.md"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "intent-recognition-bug-fix-skip-contract",
+      "prompt": "验证 bug_fix 场景跳过契约层：用户输入仅包含 bug 关键词时，应当直接进入执行层，跳过 OpenSpec 或 brainstorming 步骤。",
+      "expected_output": "bug_fix 场景的 contract entry 为跳过契约层",
+      "files": [
+        "skills/ecf/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "bug-fix-skip-contract",
+          "description": "bug_fix 跳过契约层",
+          "expected": "bug_fix contract entry 为跳过",
+          "check": "grep -c 'bug_fix.*跳过契约层' skills/ecf/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "route-decision-after-contract",
+      "prompt": "验证 After Contract Layer Complete 路由表：契层完成后禁止使用 /opsx:apply，必须根据场景类型路由到对应的执行层入口。",
+      "expected_output": "After Contract 路由表包含 skill_development → skill-creator, new_feature → ecf-execute 等路由项，且各场景都标注了禁止的入口。",
+      "files": [
+        "skills/ecf/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "no-opsx-apply-rule",
+          "description": "禁止使用 /opsx:apply 规则存在",
+          "expected": "包含禁止 /opsx:apply 指示",
+          "check": "grep -c '禁止.*/opsx:apply' skills/ecf/SKILL.md"
+        },
+        {
+          "name": "skill-creator-route",
+          "description": "skill_development 路由到 skill-creator",
+          "expected": "skill_development → skill-creator",
+          "check": "grep -c 'skill_development.*skill-creator' skills/ecf/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "workflow-auto-transition-manual",
+      "prompt": "验证手动确认模式：用户选择手动模式后，每个阶段完成后应展示交付摘要并通过 AskUserQuestion 等待用户确认。",
+      "expected_output": "手动模式下展示配送摘要并提供确认/查看详情/修改三种选项",
+      "files": [
+        "skills/ecf/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "manual-mode-exists",
+          "description": "手动确认模式定义存在",
+          "expected": "包含手动确认模式选项",
+          "check": "grep -c '手动确认' skills/ecf/SKILL.md"
+        },
+        {
+          "name": "auto-mode-exists",
+          "description": "自动流转模式定义存在",
+          "expected": "包含自动流转模式选项",
+          "check": "grep -c '自动流转' skills/ecf/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "knowledge-layer-ce-compound-required",
+      "prompt": "验证 ce:compound 知识沉淀步骤在所有工作流中强制执行：检查 SKILL.md 和 workflow-templates.md 中每个工作流场景的最后一步都包含 ce:compound。",
+      "expected_output": "所有场景的最后一步均为 ce:compound",
+      "files": [
+        "skills/ecf/SKILL.md",
+        "skills/ecf/references/workflow-templates.md"
+      ],
+      "assertions": [
+        {
+          "name": "compound-not-skippable",
+          "description": "ce:compound 不可跳过声明",
+          "expected": "包含 ce:compound 不可跳过指示",
+          "check": "grep -c 'ce:compound.*不可跳过' skills/ecf/SKILL.md skills/ecf/references/workflow-templates.md"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "workflow-definition-consistency-across-files",
+      "prompt": "验证工作流定义在所有文件中一致性：检查 intent-recognition.md 和 workflow-templates.md 中 incremental 场景的定义一致，均使用 ecf-execute 作为执行入口。",
+      "expected_output": "所有文件中 incremental 场景均使用 ecf-execute，无旧版 executing-plans 残留",
+      "files": [
+        "skills/ecf/references/intent-recognition.md",
+        "skills/ecf/references/workflow-templates.md"
+      ],
+      "assertions": [
+        {
+          "name": "intent-recog-incremental-ecf-execute",
+          "description": "intent-recognition.md 中 incremental 使用 ecf-execute",
+          "expected": "使用 ecf-execute",
+          "check": "grep -c 'incremental.*ecf-execute' skills/ecf/references/intent-recognition.md skills/ecf/references/workflow-templates.md"
+        },
+        {
+          "name": "wft-inc-template-ecf-execute",
+          "description": "workflow-templates.md 中 incremental 模板使用 ecf-execute",
+          "expected": "template 中使用 ecf-execute",
+          "check": "grep -c 'ecf-execute' skills/ecf/references/intent-recognition.md skills/ecf/references/workflow-templates.md"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "commands-directory-deleted",
+      "prompt": "验证废弃的 commands/ 目录已删除，且 SKILL.md 中包含迁移说明。",
+      "expected_output": "commands/ 目录不存在，SKILL.md 中有迁移指引",
+      "files": [],
+      "assertions": [
+        {
+          "name": "commands-dir-gone",
+          "description": "commands 目录已删除",
+          "expected": "目录不存在",
+          "check": "test ! -d skills/ecf/commands"
+        },
+        {
+          "name": "migration-note-in-skill",
+          "description": "SKILL.md 包含迁移说明",
+          "expected": "迁移说明存在",
+          "check": "grep -c '迁移说明' skills/ecf/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "skill-file-size-under-target",
+      "prompt": "验证 SKILL.md 行数不超过 400 行目标。",
+      "expected_output": "SKILL.md 行数 < 400",
+      "files": [],
+      "assertions": [
+        {
+          "name": "skill-line-count",
+          "description": "SKILL.md 行数低于 400",
+          "expected": "less than 400 lines",
+          "check": "test $(wc -l < skills/ecf/SKILL.md) -lt 400"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "name": "preflight-dependency-superpowers-critical",
+      "prompt": "验证依赖检查流程：当 Superpowers 完全缺失（既无 frad-dotclaude 也无官方版本）时，应当检测为 Critical 错误并阻断流程，提示用户安装。",
+      "expected_output": "dependency-check.md 包含 Superpowers 完全未安装时的 Critical 处理规则，阻断流程并提示安装",
+      "files": [
+        "skills/ecf/SKILL.md",
+        "skills/ecf/references/dependency-check.md"
+      ],
+      "assertions": [
+        {
+          "name": "superpowers-critical-block",
+          "description": "Superpowers 完全缺失时阻断流程规则存在",
+          "expected": "包含 Superpowers 完全未安装 → Critical → 阻断流程",
+          "check": "grep -c 'Superpowers.*完全未安装.*Critical' skills/ecf/SKILL.md skills/ecf/references/dependency-check.md"
+        },
+        {
+          "name": "critical-prompt-install",
+          "description": "提示用户安装指令存在",
+          "expected": "提示用户安装 Superpowers",
+          "check": "grep -c '请先安装.*Superpowers' skills/ecf/SKILL.md skills/ecf/references/dependency-check.md"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "name": "preflight-dependency-missing-guide-init",
+      "prompt": "验证依赖检查流程：当存在缺失依赖时，应当引导用户运行 ecf-init --auto-install 进行自动安装。",
+      "expected_output": "SKILL.md 和 dependency-check.md 都包含缺失依赖时引导运行 ecf-init --auto-install 的说明",
+      "files": [
+        "skills/ecf/SKILL.md",
+        "skills/ecf/references/dependency-check.md"
+      ],
+      "assertions": [
+        {
+          "name": "auto-install-guide-exists",
+          "description": "引导运行 --auto-install 存在",
+          "expected": "包含引导用户运行 ecf-init --auto-install",
+          "check": "grep -c 'ecf-init.*--auto-install' skills/ecf/SKILL.md skills/ecf/references/dependency-check.md"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "name": "intent-routing-new-feature",
+      "prompt": "验证意图识别路由：new_feature 场景应当路由到契约层入口 /opsx:propose。",
+      "expected_output": "SKILL.md 路由表中 new_feature → /opsx:propose 定义正确",
+      "files": [
+        "skills/ecf/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "new-feature-route-correct",
+          "description": "new_feature 路由到 /opsx:propose",
+          "expected": "new_feature 契约层入口为 /opsx:propose",
+          "check": "grep -c 'new_feature.*opsx:propose' skills/ecf/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "name": "intent-routing-refactor",
+      "prompt": "验证意图识别路由：refactor 场景应当路由到契约层入口 Skill(\"superpowers:brainstorming\")，不需要 OpenSpec。",
+      "expected_output": "SKILL.md 路由表中 refactor → Skill(\"superpowers:brainstorming\") 定义正确",
+      "files": [
+        "skills/ecf/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "refactor-route-correct",
+          "description": "refactor 路由到 superpowers:brainstorming",
+          "expected": "refactor 不使用 OpenSpec",
+          "check": "grep -c 'refactor.*superpowers:brainstorming' skills/ecf/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "name": "intent-routing-code-review",
+      "prompt": "验证意图识别路由：code_review 场景应当跳过契约层，直接进入执行层 ce-review。",
+      "expected_output": "SKILL.md 路由表中 code_review → 跳过契约层 定义正确",
+      "files": [
+        "skills/ecf/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "code-review-skip-contract",
+          "description": "code_review 跳过契约层",
+          "expected": "code_review contract entry 为跳过",
+          "check": "grep -c 'code_review.*跳过契约层' skills/ecf/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "name": "intent-routing-documentation",
+      "prompt": "验证意图识别路由：documentation 场景应当跳过契约层，直接执行。",
+      "expected_output": "SKILL.md 路由表中 documentation → 跳过契约层 定义正确",
+      "files": [
+        "skills/ecf/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "documentation-skip-contract",
+          "description": "documentation 跳过契约层",
+          "expected": "documentation contract entry 为跳过",
+          "check": "grep -c 'documentation.*跳过契约' skills/ecf/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "name": "intent-routing-test-coverage",
+      "prompt": "验证意图识别路由：test_coverage 场景应当跳过契约层，直接进入执行层 BDD。",
+      "expected_output": "SKILL.md 路由表中 test_coverage → 跳过契约层 定义正确",
+      "files": [
+        "skills/ecf/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "test-coverage-skip-contract",
+          "description": "test_coverage 跳过契约层",
+          "expected": "test_coverage contract entry 为跳过",
+          "check": "grep -c 'test_coverage.*跳过契约层' skills/ecf/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "name": "workflow-skill-development-complete",
+      "prompt": "验证 skill_development 完整工作流定义：skill_development 必须使用 skill-creator 作为执行入口，skill-quality-verification 作为验证层，/opsx:archive 归档，最后 ce:compound。",
+      "expected_output": "SKILL.md 和 workflow-templates.md 中 skill_development 工作流完整且一致，验证层必须使用 skill-quality-verification（不是 ecf-verify）",
+      "files": [
+        "skills/ecf/SKILL.md",
+        "skills/ecf/references/workflow-templates.md"
+      ],
+      "assertions": [
+        {
+          "name": "skill-dev-uses-skill-creator",
+          "description": "执行层使用 skill-creator",
+          "expected": "skill_development 执行层 → skill-creator",
+          "check": "grep -c 'skill_development.*skill-creator' skills/ecf/SKILL.md skills/ecf/references/workflow-templates.md"
+        },
+        {
+          "name": "skill-dev-uses-quality-verification",
+          "description": "验证层使用 skill-quality-verification",
+          "expected": "skill_development 验证层 → skill-quality-verification 不是 ecf-verify",
+          "check": "grep -c 'skill-quality-verification.*NOT.*ecf-verify' skills/ecf/SKILL.md skills/ecf/references/workflow-templates.md"
+        },
+        {
+          "name": "skill-dev-includes-archive",
+          "description": "包含 /opsx:archive 步骤",
+          "expected": "skill_development 工作流包含 /opsx:archive",
+          "check": "grep -c 'skill_development.*opsx:archive' skills/ecf/SKILL.md skills/ecf/references/workflow-templates.md"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "name": "workflow-archive-mandatory-openspec",
+      "prompt": "验证归档规则强制：使用 OpenSpec 创建的变更（new_feature、skill_development、incremental）完成后必须调用 /opsx:archive 完成生命周期闭环。",
+      "expected_output": "workflow-templates.md 中明确声明 Archive 步骤强制，所有 OpenSpec 变更必须闭环",
+      "files": [
+        "skills/ecf/SKILL.md",
+        "skills/ecf/references/workflow-templates.md"
+      ],
+      "assertions": [
+        {
+          "name": "archive-mandatory-declaration",
+          "description": "声明 Archive 步骤强制",
+          "expected": "包含必须调用 /opsx:archive 完成生命周期闭环",
+          "check": "grep -c '必须.*opsx:archive' skills/ecf/SKILL.md skills/ecf/references/workflow-templates.md"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "name": "workflow-writing-plans-auto-correction",
+      "prompt": "验证 Writing-plans 输出自动纠正规则：如果 writing-plans 输出引导用户使用 /superpowers:executing-plans，应当自动纠正为 /ecf-execute。",
+      "expected_output": "SKILL.md 包含自动纠正规则声明，纠正到 /ecf-execute",
+      "files": [
+        "skills/ecf/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "auto-correction-rule-exists",
+          "description": "自动纠正规则存在",
+          "expected": "包含 Writing-plans 输出自动纠正到 ecf-execute",
+          "check": "grep -c 'Writing-plans.*自动纠正' skills/ecf/SKILL.md"
+        },
+        {
+          "name": "correct-target-ecf-execute",
+          "description": "纠正目标为 /ecf-execute",
+          "expected": "纠正到 /ecf-execute 不是其他入口",
+          "check": "grep -c '纠正.*ecf-execute' skills/ecf/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "name": "error-handling-degraded-skip-knowledge",
+      "prompt": "验证 degraded 模式异常处理规则：degraded 模式下应当跳过知识检索，不尝试知识库查询。",
+      "expected_output": "SKILL.md 和 knowledge-retrieval.md 包含 degraded 模式跳过知识检索规则",
+      "files": [
+        "skills/ecf/SKILL.md",
+        "skills/ecf/references/knowledge-retrieval.md"
+      ],
+      "assertions": [
+        {
+          "name": "degraded-skip-retrieval",
+          "description": "degraded 模式跳过知识检索规则存在",
+          "expected": "包含 degraded 模式 → 跳过检索",
+          "check": "grep -c 'degraded.*模式.*跳过.*检索' skills/ecf/SKILL.md skills/ecf/references/knowledge-retrieval.md"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "name": "knowledge-retrieval-auto-apply-rule",
+      "prompt": "验证知识检索自动应用规则：Top-1 匹配且 tags 匹配数 ≥1 时应当自动应用该方案，应用后必须验证。",
+      "expected_output": "knowledge-retrieval.md 包含自动应用条件规则（Top-1 + tags ≥1 → 自动应用）",
+      "files": [
+        "skills/ecf/references/knowledge-retrieval.md"
+      ],
+      "assertions": [
+        {
+          "name": "auto-apply-condition-exists",
+          "description": "自动应用条件定义存在",
+          "expected": "包含 Top-1 tags ≥1 → 自动应用",
+          "check": "grep -c 'Top-1.*tags.*匹配.*>=.*1' skills/ecf/references/knowledge-retrieval.md"
+        },
+        {
+          "name": "verify-after-apply",
+          "description": "应用后必须验证",
+          "expected": "包含应用后必须验证",
+          "check": "grep -c '应用后.*必须.*验证' skills/ecf/references/knowledge-retrieval.md"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "name": "red-flags-complete-list",
+      "prompt": "验证 Red Flags 清单完整性：SKILL.md 的 Red Flags 章节应当列出所有禁止行为。",
+      "expected_output": "SKILL.md Red Flags 包含所有 9 项禁止行为：直接编码未意图识别、新需求跳过 brainstorming、Bug修复不用 systematic-debugging、工作流完成未调用 ce:compound、契约层完成后调用 /opsx:apply、使用 superpowers:executing-plans 而非 /ecf-execute、Critical 依赖缺失未阻断、工作流异常未检索、degraded 模式尝试检索",
+      "files": [
+        "skills/ecf/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "red-flags-count",
+          "description": "Red Flags 条目数 ≥9",
+          "expected": "至少 9 个 Red Flag 条目",
+          "check": "awk '/Red Flags/{f=1; next} f && /^- /{n++} END{if(n >= 9) exit 0; else exit 1}' skills/ecf/SKILL.md"
+        },
+        {
+          "name": "no-opsx-apply-flag-exists",
+          "description": "包含禁止契约层后调用 /opsx:apply",
+          "expected": "Red Flags 中存在禁止 /opsx:apply",
+          "check": "grep -c '契约层完成后调用.*/opsx:apply' skills/ecf/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "name": "parallel-red-green-pair-defined",
+      "prompt": "验证 Red-Green Pair 并行模式定义：parallel-execution.md 和 workflow-templates.md 都应当定义 Red-Green Pair 模式用于 BDD 测试+实现配对。",
+      "expected_output": "两个文件都包含 Red-Green Pair 模式定义，用于测试→实现顺序执行，多配对可并行",
+      "files": [
+        "skills/ecf/references/parallel-execution.md",
+        "skills/ecf/references/workflow-templates.md"
+      ],
+      "assertions": [
+        {
+          "name": "red-green-in-parallel-md",
+          "description": "parallel-execution.md 包含 Red-Green Pair",
+          "expected": "parallel-execution.md 定义 Red-Green Pair 模式",
+          "check": "grep -c 'Red-Green Pair' skills/ecf/references/parallel-execution.md"
+        },
+        {
+          "name": "red-green-in-wft-md",
+          "description": "workflow-templates.md 包含 Red-Green Pair",
+          "expected": "workflow-templates.md 执行模式表包含 Red-Green Pair",
+          "check": "grep -c 'Red-Green Pair' skills/ecf/references/workflow-templates.md"
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "name": "scene-flow-rules-complete",
+      "prompt": "验证场景流转规则表完整性：workflow-templates.md 应当包含所有主要场景（new_feature、skill_development、refactor、bug_fix、incremental）的完整流转规则表，定义每个步骤的完成信号和下一跳。",
+      "expected_output": "workflow-templates.md 的场景流转规则表包含所有 5 个主要场景，每个场景定义了步骤、完成信号、下一跳",
+      "files": [
+        "skills/ecf/references/workflow-templates.md"
+      ],
+      "assertions": [
+        {
+          "name": "flow-rules-new-feature",
+          "description": "包含 new_feature 场景流转规则",
+          "expected": "new_feature 流转规则定义完整",
+          "check": "grep -c '### 场景:.*new_feature' skills/ecf/references/workflow-templates.md"
+        },
+        {
+          "name": "flow-rules-skill-development",
+          "description": "包含 skill_development 场景流转规则",
+          "expected": "skill_development 流转规则定义完整",
+          "check": "grep -c '### 场景:.*skill_development' skills/ecf/references/workflow-templates.md"
+        },
+        {
+          "name": "flow-rules-bug-fix",
+          "description": "包含 bug_fix 场景流转规则",
+          "expected": "bug_fix 流转规则定义完整",
+          "check": "grep -c '### 场景:.*bug_fix' skills/ecf/references/workflow-templates.md"
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "name": "pre-flow-mode-prompt-mandatory",
+      "prompt": "验证流转模式询问强制规则：意图识别完成后、进入契约层前，必须询问用户选择工作流流转模式（手动确认/自动流转），不能跳过这一步。",
+      "expected_output": "SKILL.md 明确声明意图识别完成后进入契约层前必须展示流转模式选择询问，提供两个选项等待用户选择",
+      "files": [
+        "skills/ecf/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "flow-mode-prompt-exists",
+          "description": "包含流转模式询问规则声明",
+          "expected": "意图识别完成后进入契约层前必须询问用户选择流转模式",
+          "check": "grep -c '意图识别完成后、进入契约层前，询问用户选择模式' skills/ecf/SKILL.md"
+        },
+        {
+          "name": "two-options-defined",
+          "description": "定义了两个选项（手动确认模式、自动流转模式）",
+          "expected": "提供手动确认和自动流转两个选项",
+          "check": "grep -c -A2 '手动确认模式.*自动流转模式' skills/ecf/SKILL.md | wc -l"
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "name": "flow-mode-prompt-must-stop-after-output",
+      "prompt": "验证流转模式询问后必须停止执行：输出询问提示后必须停止执行，返回控制权给用户，不能直接调用契约层 skill。",
+      "expected_output": "SKILL.md Step 6 末尾明确声明：输出提示后 MUST STOP 执行并返回控制权，必须等待用户选择后才能继续",
+      "files": [
+        "skills/ecf/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "must-stop-after-prompt",
+          "description": "包含 MUST STOP 停止执行声明",
+          "expected": "输出提示后必须停止执行并返回控制权",
+          "check": "grep -c 'MUST STOP.*execution.*here' skills/ecf/SKILL.md"
+        },
+        {
+          "name": "do-not-proceed-before-selection",
+          "description": "明确声明不能在用户选择前继续",
+          "expected": "用户选择模式之前不能进入契约层",
+          "check": "grep -c 'Do NOT proceed to contract layer until the user selects a mode' skills/ecf/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "name": "user-interaction-stop-rule-exists",
+      "prompt": "验证用户交互点通用停止规则：Core Rule 异常部分定义了 User Interaction Points，要求在需要用户输入时必须输出提示然后停止执行。",
+      "expected_output": "Step 4 Core Rule 中添加了 Exception 2: User Interaction Points，明确所有用户交互点都必须输出提示后停止执行",
+      "files": [
+        "skills/ecf/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "user-interaction-exception-exists",
+          "description": "Core Rule 中存在 User Interaction Points 异常定义",
+          "expected": "Exception 2: User Interaction Points 存在",
+          "check": "grep -c 'Exception 2.*User Interaction Points' skills/ecf/SKILL.md"
+        },
+        {
+          "name": "stop-after-output-rule",
+          "description": "明确要求输出提示后 THEN STOP EXECUTION",
+          "expected": "THEN STOP EXECUTION 规则存在",
+          "check": "grep -c 'THEN STOP EXECUTION' skills/ecf/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "name": "red-flag-violation-entry-exists",
+      "prompt": "验证 Red Flags 中包含此违规行为：Red Flags 清单中明确列出'意图识别完成后未询问流转模式就进入契约层'是 process violation，必须停止。",
+      "expected_output": "Red Flags 包含此违规行为的条目",
+      "files": [
+        "skills/ecf/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "red-flag-entry-exists",
+          "description": "Red Flags 包含该违规行为",
+          "expected": "Red Flags 中存在'意图识别完成后未询问流转模式就进入契约层'条目",
+          "check": "grep -c '意图识别完成后未询问流转模式就进入契约层' skills/ecf/SKILL.md"
+        }
       ]
     }
   ]

@@ -1,0 +1,358 @@
+
+{
+  "skill_name": "ecf-execute",
+  "evals": [
+    {
+      "id": 1,
+      "name": "environment-check-claude-plugin-root",
+      "prompt": "验证环境检查逻辑：SKILL.md Step 1 必须包含 CLAUDE_PLUGIN_ROOT 环境变量检测代码，当环境未就绪时使用官方版本 fallback。",
+      "expected_output": "包含 export CLAUDE_PLUGIN_ROOT 自动检测代码，以及为空时使用 fallback 的处理逻辑",
+      "files": [
+        "skills/ecf-execute/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "claude-plugin-root-detection-exists",
+          "description": "包含 CLAUDE_PLUGIN_ROOT 自动检测代码",
+          "expected": "SKILL.md 中有 export CLAUDE_PLUGIN_ROOT 检测逻辑",
+          "check": "grep -c 'export CLAUDE_PLUGIN_ROOT' skills/ecf-execute/SKILL.md"
+        },
+        {
+          "name": "fallback-handling-exists",
+          "description": "包含空值时 fallback 处理",
+          "expected": "CLAUDE_PLUGIN_ROOT 为空时使用官方版本 fallback",
+          "check": "grep -c '环境未就绪.*fallback' skills/ecf-execute/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "required-skills-loading",
+      "prompt": "验证必需 Skills 加载：Step 2 必须声明需要加载 superpowers:agent-team-driven-development 和 superpowers:behavior-driven-development。",
+      "expected_output": "列出两个必需技能，并说明调用方式",
+      "files": [
+        "skills/ecf-execute/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "agent-team-required",
+          "description": "需要加载 agent-team-driven-development",
+          "expected": "包含 superpowers:agent-team-driven-development",
+          "check": "grep -c 'agent-team-driven-development' skills/ecf-execute/SKILL.md"
+        },
+        {
+          "name": "behavior-driven-required",
+          "description": "需要加载 behavior-driven-development",
+          "expected": "包含 superpowers:behavior-driven-development",
+          "check": "grep -c 'behavior-driven-development' skills/ecf-execute/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "plan-path-resolution-logic",
+      "prompt": "验证计划路径解析逻辑：当有参数时使用参数路径，无参数时自动发现 docs/plans/ 最新计划目录。",
+      "expected_output": "包含参数提供和自动发现两种情况的处理代码逻辑",
+      "files": [
+        "skills/ecf-execute/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "argument-provided-case",
+          "description": "参数提供时使用参数路径",
+          "expected": "plan_path=\"$ARGUMENTS\"",
+          "check": "grep -c 'plan_path.*ARGUMENTS' skills/ecf-execute/SKILL.md"
+        },
+        {
+          "name": "auto-discovery-case",
+          "description": "无参数时自动发现最新计划",
+          "expected": "ls -td docs/plans 找最新",
+          "check": "grep -c 'ls -td' skills/ecf-execute/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "batch-tasks-analysis-metadata",
+      "prompt": "验证批量任务分析：Step 4 需要读取 _index.md 中的 YAML 任务元数据，分析任务数量、Red-Green 配对、文件冲突。",
+      "expected_output": "展示 YAML 任务元数据示例格式，说明分析结果包含三项检查",
+      "files": [
+        "skills/ecf-execute/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "yaml-metadata-example-exists",
+          "description": "包含 YAML 任务元数据示例",
+          "expected": "有 tasks: yaml 结构示例",
+          "check": "grep -c 'tasks:' skills/ecf-execute/SKILL.md | head -1"
+        },
+        {
+          "name": "red-green-pair-detection",
+          "description": "分析结果包含 Red-Green 配对检测",
+          "expected": "提到识别 test+impl 配对",
+          "check": "grep -c 'Red-Green.*配对' skills/ecf-execute/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "execution-mode-selection-thresholds",
+      "prompt": "验证执行模式选择阈值：必须定义 >6 → team, ≤6 → subagent, 1 → linear, Red-Green → pair。阈值必须与 ecf 主技能和 parallel-execution.md 一致。",
+      "expected_output": "表格清晰定义四种条件对应的模式，阈值正确",
+      "files": [
+        "skills/ecf-execute/SKILL.md",
+        "skills/ecf/references/parallel-execution.md"
+      ],
+      "assertions": [
+        {
+          "name": "gt-6-team-mode",
+          "description": ">6 任务使用 team 模式",
+          "expected": ">6 → Agent Team",
+          "check": "grep -c '>6.*team' skills/ecf-execute/SKILL.md"
+        },
+        {
+          "name": "lte-6-subagent-mode",
+          "description": "≤6 任务使用 subagent 模式",
+          "expected": "≤6 → Subagent",
+          "check": "grep -c '≤6.*subagent' skills/ecf-execute/SKILL.md"
+        },
+        {
+          "name": "one-task-linear-mode",
+          "description": "1 任务使用 linear 模式",
+          "expected": "1 任务 → Linear",
+          "check": "grep -c '1.*linear' skills/ecf-execute/SKILL.md"
+        },
+        {
+          "name": "red-green-pair-mode",
+          "description": "Red-Green 配对使用 pair 模式",
+          "expected": "Red-Green → Pair",
+          "check": "grep -c 'Red-Green.*pair' skills/ecf-execute/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "red-green-parallel-execution",
+      "prompt": "验证 Red-Green Pair 并行执行规则：多配对可以并行启动，每个配对内部顺序执行。",
+      "expected_output": "说明 Pair 1 配对顺序执行，多个配对并行启动",
+      "files": [
+        "skills/ecf-execute/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "sequential-within-pair",
+          "description": "配对内部顺序执行 test → impl",
+          "expected": "顺序执行配对",
+          "check": "grep -c '顺序执行' skills/ecf-execute/SKILL.md"
+        },
+        {
+          "name": "parallel-across-pairs",
+          "description": "多个配对并行启动",
+          "expected": "多配对可并行",
+          "check": "grep -c '并行' skills/ecf-execute/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "verification-gate-rules",
+      "prompt": "验证批次验证门控规则：必须所有任务 PASS 才能进入下一批次，FAIL 任务最多重试 2 次。",
+      "expected_output": "说明所有任务通过才能进入下一批次，最多重试 2 次",
+      "files": [
+        "skills/ecf-execute/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "all-pass-required",
+          "description": "所有任务 PASS 才进下一批",
+          "expected": "所有任务 PASS 才进入下一批次",
+          "check": "grep -c '所有任务 PASS' skills/ecf-execute/SKILL.md"
+        },
+        {
+          "name": "max-two-retries",
+          "description": "最多 2 次重试",
+          "expected": "最多 2 次重试",
+          "check": "grep -c '最多.*2.*重试' skills/ecf-execute/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "knowledge-retrieval-on-failure",
+      "prompt": "验证任务失败时知识检索集成：degraded 模式跳过检索，匹配到方案自动应用后重试。",
+      "expected_output": "包含 degraded 模式检测逻辑，以及匹配到方案后的处理流程",
+      "files": [
+        "skills/ecf-execute/SKILL.md",
+        "skills/ecf/references/knowledge-retrieval.md"
+      ],
+      "assertions": [
+        {
+          "name": "degraded-skips-retrieval",
+          "description": "degraded 模式跳过知识检索",
+          "expected": "degraded 模式 → 跳过检索",
+          "check": "grep -c 'degraded.*跳过.*检索' skills/ecf-execute/SKILL.md skills/ecf/references/knowledge-retrieval.md"
+        },
+        {
+          "name": "match-found-apply-then-retry",
+          "description": "匹配到方案应用后重试",
+          "expected": "应用方案后重试",
+          "check": "grep -c '应用.*重试' skills/ecf-execute/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "execution-completion-validation",
+      "prompt": "验证执行完成验证清单：必须包含所有 7 项验证检查（环境检查、计划路径、任务分析、执行模式、批次完成、验证门控、执行摘要）。",
+      "expected_output": "执行完成验证章节列出所有 7 项验证检查，使用 ✓ 标记",
+      "files": [
+        "skills/ecf-execute/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "seven-check-items",
+          "description": "至少 7 个检查项",
+          "expected": "验证清单包含 7 项",
+          "check": "awk '/Execution Completion Validation/{f=1; next} f && /^✓/ {n++} END{exit n >= 7 ? 0 : 1}' skills/ecf-execute/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "summary-output-format",
+      "prompt": "验证执行完成摘要格式：必须使用固定模板，包含计划路径、任务总数、执行模式、完成状态，使用分隔线和 emoji 状态标记。",
+      "expected_output": "SKILL.md 包含摘要输出模板，定义所有必需字段和格式",
+      "files": [
+        "skills/ecf-execute/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "summary-template-exists",
+          "description": "Summary Output 模板存在",
+          "expected": "有 Summary Output 模板定义",
+          "check": "grep -c 'Summary Output' skills/ecf-execute/SKILL.md"
+        },
+        {
+          "name": "required-fields-present",
+          "description": "模板包含计划路径、任务总数、执行模式、完成状态",
+          "expected": "四个必需字段都有",
+          "check": "grep -c -E '计划路径|任务总数|执行模式|完成状态' skills/ecf-execute/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "red-flags-checklist-complete",
+      "prompt": "验证 Red Flags 清单完整性：必须列出所有禁止行为（跳过环境检查、错误模式选择、未加载技能、未执行验证门控）。",
+      "expected_output": "Red Flags 章节至少包含 4 项禁止行为",
+      "files": [
+        "skills/ecf-execute/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "red-flags-count",
+          "description": "Red Flags 条目数 ≥ 4",
+          "expected": "至少 4 个 Red Flag 条目",
+          "check": "awk '/Red Flags/{f=1; next} f && /^- /{n++} END{exit n >= 4 ? 0 : 1}' skills/ecf-execute/SKILL.md"
+        },
+        {
+          "name": "skip-env-check-flagged",
+          "description": "跳过环境检查被标记为 Red Flag",
+          "expected": "包含跳过环境检查",
+          "check": "grep -c '跳过环境检查' skills/ecf-execute/SKILL.md"
+        },
+        {
+          "name": "wrong-mode-flagged",
+          "description": "错误模式选择被标记为 Red Flag (>6 不用 team, ≤6 不用 subagent)",
+          "expected": "包含 >6 任务仍使用 linear 或 subagent 是 Red Flag",
+          "check": "grep -c '>6.*linear.*subagent' skills/ecf-execute/SKILL.md || grep -c '≤6.*team' skills/ecf-execute/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "name": "json-structure-consistency",
+      "prompt": "验证 evals.json 结构与 ecf/ecf-init 保持一致：顶级键、用例键、断言键都相同。",
+      "expected_output": "顶级结构一致，每个评估用例结构一致，每个断言结构一致",
+      "files": [
+        "skills/ecf/evals/evals.json",
+        "skills/ecf-init/evals/evals.json",
+        "skills/ecf-execute/evals/evals.json"
+      ],
+      "assertions": [
+        {
+          "name": "top-level-keys-match",
+          "description": "三个文件顶级键一致 (skill_name, evals)",
+          "expected": "都有 skill_name 和 evals 顶级键",
+          "check": "python3 -c 'import json; a=json.load(open(\"skills/ecf/evals/evals.json\")); b=json.load(open(\"skills/ecf-init/evals/evals.json\")); c=json.load(open(\"skills/ecf-execute/evals/evals.json\")); exit(0) if set(a.keys()) == set(b.keys()) == set(c.keys()) else exit(1)'"
+        },
+        {
+          "name": "eval-keys-match",
+          "description": "每个评估用例键一致 (id, name, prompt, expected_output, files, assertions)",
+          "expected": "ecf-execute 评估用例包含所有必需键",
+          "check": "python3 -c 'import json; a=json.load(open(\"skills/ecf/evals/evals.json\")); c=json.load(open(\"skills/ecf-execute/evals/evals.json\")); a_keys=set(a[\"evals\"][0].keys()); c_keys=set(c[\"evals\"][0].keys()); exit(0) if a_keys == c_keys else exit(1)'"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "name": "parallel-threshold-consistency-across-files",
+      "prompt": "验证并发阈值跨文件一致性：ecf-execute、ecf、parallel-execution.md 三个文件的阈值定义必须一致 (>6 → team, ≤6 → subagent)。",
+      "expected_output": "三个文件阈值定义一致，没有旧的 3+ 阈值残留",
+      "files": [
+        "skills/ecf-execute/SKILL.md",
+        "skills/ecf/SKILL.md",
+        "skills/ecf/references/parallel-execution.md"
+      ],
+      "assertions": [
+        {
+          "name": "all-files-gt-6-team",
+          "description": "所有文件都定义 >6 任务 → Agent Team",
+          "expected": "三个文件都有 >6 → team",
+          "check": "grep -c '>6' skills/ecf-execute/SKILL.md skills/ecf/SKILL.md skills/ecf/references/parallel-execution.md"
+        },
+        {
+          "name": "all-files-lte-6-subagent",
+          "description": "所有文件都定义 ≤6 任务 → Subagent",
+          "expected": "三个文件都有 ≤6 → subagent",
+          "check": "grep -c '≤6' skills/ecf-execute/SKILL.md skills/ecf/SKILL.md skills/ecf/references/parallel-execution.md"
+        },
+        {
+          "name": "no-old-3-plus-threshold",
+          "description": "没有旧的 3+ 或 >=3 阈值描述残留",
+          "expected": "不存在 3+ 描述",
+          "check": "! grep -q '3+\\|>=3' skills/ecf-execute/SKILL.md skills/ecf/references/parallel-execution.md"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "name": "yaml-frontmatter-valid",
+      "prompt": "验证 SKILL.md 开头 YAML frontmatter 正确：包含 name 和 description 字段。",
+      "expected_output": "开头有正确的 --- YAML frontmatter --- 块，包含 name 和 description",
+      "files": [
+        "skills/ecf-execute/SKILL.md"
+      ],
+      "assertions": [
+        {
+          "name": "frontmatter-start-end",
+          "description": "有正确的 --- 分隔符",
+          "expected": "开头和结尾都有 ---",
+          "check": "head -5 skills/ecf-execute/SKILL.md | grep -c '^---$'"
+        },
+        {
+          "name": "name-field-exists",
+          "description": "包含 name 字段",
+          "expected": "有 name: ecf-execute",
+          "check": "grep -c 'name:.*ecf-execute' skills/ecf-execute/SKILL.md"
+        },
+        {
+          "name": "description-field-exists",
+          "description": "包含 description 字段",
+          "expected": "有 description 字段描述触发时机",
+          "check": "grep -c 'description:' skills/ecf-execute/SKILL.md"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,324 @@
+{
+  "skill_name": "ecf-verify",
+  "evals": [
+    {
+      "id": 1,
+      "name": "fully-aligned-artifacts",
+      "prompt": "Verify alignment for design folder docs/plans/test-fully-aligned-design/",
+      "description": "All artifacts (spec → design → code → test) are fully aligned. Verify that ecf-verify reports no inconsistencies and gives full scores.",
+      "expected_output": "Verification report shows all green ✅, 100% consistency across all three dimensions, no findings reported.",
+      "files": [
+        "docs/plans/test-fully-aligned-design/_index.md",
+        "docs/plans/test-fully-aligned-design/architecture.md",
+        "docs/plans/test-fully-aligned-design/bdd-specs.md",
+        "src/test_feature/test_feature.go",
+        "tests/test_feature_test.go"
+      ],
+      "assertions": [
+        {
+          "name": "spec_design_full_score",
+          "description": "Spec-Design consistency score is 100%",
+          "type": "quantitative",
+          "expected_value": "100"
+        },
+        {
+          "name": "design_code_full_score",
+          "description": "Design-Code consistency score is 100%",
+          "type": "quantitative",
+          "expected_value": "100"
+        },
+        {
+          "name": "spec_test_full_score",
+          "description": "Spec-Test consistency score is 100%",
+          "type": "quantitative",
+          "expected_value": "100"
+        },
+        {
+          "name": "no_inconsistencies",
+          "description": "No inconsistency findings reported",
+          "type": "count",
+          "expected_value": 0
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "spec-design-missing-feature",
+      "prompt": "Verify alignment for design folder docs/plans/test-spec-design-missing/",
+      "description": "Spec mentions a feature that is not documented in design doc. Verify that ecf-verify detects this inconsistency with high severity.",
+      "expected_output": "Verification detects that 'feature X' is in spec but missing from design, reports at least one high-severity inconsistency.",
+      "files": [
+        "docs/plans/test-spec-design-missing/_index.md",
+        "docs/plans/test-spec-design-missing/architecture.md",
+        "docs/plans/test-spec-design-missing/bdd-specs.md",
+        "src/test_feature/test_feature.go",
+        "tests/test_feature_test.go"
+      ],
+      "assertions": [
+        {
+          "name": "spec_design_less_than_full",
+          "description": "Spec-Design consistency score < 100%",
+          "type": "comparison",
+          "comparison": "less_than",
+          "expected_value": "100"
+        },
+        {
+          "name": "spec_design_inconsistency_count",
+          "description": "At least one inconsistency found in Spec-Design dimension",
+          "type": "count_min",
+          "expected_value": 1
+        },
+        {
+          "name": "high_severity_found",
+          "description": "At least one high-severity inconsistency is reported",
+          "type": "has_severity",
+          "expected_value": "high"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "design-code-interface-mismatch",
+      "prompt": "Verify alignment for design folder docs/plans/test-design-code-mismatch/",
+      "description": "Design defines an interface with specific method signatures, but code implementation has different signatures. Verify detection of this mismatch.",
+      "expected_output": "Verification detects that the method signatures in code do not match what design documented, reports the mismatch with specific line numbers.",
+      "files": [
+        "docs/plans/test-design-code-mismatch/_index.md",
+        "docs/plans/test-design-code-mismatch/architecture.md",
+        "docs/plans/test-design-code-mismatch/bdd-specs.md",
+        "src/test_feature/test_feature.go",
+        "tests/test_feature_test.go"
+      ],
+      "assertions": [
+        {
+          "name": "design_code_less_than_full",
+          "description": "Design-Code consistency score < 100%",
+          "type": "comparison",
+          "comparison": "less_than",
+          "expected_value": "100"
+        },
+        {
+          "name": "design_code_inconsistency_found",
+          "description": "At least one inconsistency found in Design-Code dimension",
+          "type": "count_min",
+          "expected_value": 1
+        },
+        {
+          "name": "interface_signature_mismatch",
+          "description": "Reports that interface method signature does not match design",
+          "type": "contains_text",
+          "search_text": "signature",
+          "expected_found": true
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "spec-test-missing-scenarios",
+      "prompt": "Verify alignment for design folder docs/plans/test-spec-test-missing/",
+      "description": "BDD spec defines three scenarios, but only two are implemented in tests. Verify that ecf-verify detects missing coverage.",
+      "expected_output": "Verification detects that one or more BDD scenarios have no corresponding tests, reports missing coverage.",
+      "files": [
+        "docs/plans/test-spec-test-missing/_index.md",
+        "docs/plans/test-spec-test-missing/bdd-specs.md",
+        "src/test_feature/test_feature.go",
+        "tests/test_feature_test.go"
+      ],
+      "assertions": [
+        {
+          "name": "spec_test_less_than_full",
+          "description": "Spec-Test consistency score < 100%",
+          "type": "comparison",
+          "comparison": "less_than",
+          "expected_value": "100"
+        },
+        {
+          "name": "spec_test_inconsistency_found",
+          "description": "At least one inconsistency found in Spec-Test dimension",
+          "type": "count_min",
+          "expected_value": 1
+        },
+        {
+          "name": "missing_scenario_detected",
+          "description": "Reports missing BDD scenario coverage",
+          "type": "contains_text",
+          "search_text": "scenario",
+          "expected_found": true
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "multi-dimension-inconsistencies",
+      "prompt": "Verify alignment for design folder docs/plans/test-multi-inconsistencies/",
+      "description": "Multiple inconsistencies across different dimensions. Verify that all are found and reported correctly.",
+      "expected_output": "All inconsistencies across Spec-Design, Design-Code, and Spec-Test are detected and reported.",
+      "files": [
+        "docs/plans/test-multi-inconsistencies/_index.md",
+        "docs/plans/test-multi-inconsistencies/bdd-specs.md",
+        "docs/plans/test-multi-inconsistencies/architecture.md",
+        "src/test_feature/test_feature.go",
+        "tests/test_feature_test.go"
+      ],
+      "assertions": [
+        {
+          "name": "all_dimensions_less_than_full",
+          "description": "All three dimensions have score < 100%",
+          "type": "all_less_than",
+          "expected_value": "100"
+        },
+        {
+          "name": "total_inconsistencies_min",
+          "description": "At least 3 total inconsistencies across all dimensions",
+          "type": "count_min",
+          "expected_value": 3
+        },
+        {
+          "name": "report_structure_complete",
+          "description": "Verification report has all required sections and is well-formed",
+          "type": "has_sections",
+          "sections": ["Summary", "Findings"]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "architecture-doc-update-new-module",
+      "prompt": "Verify alignment and check architecture doc updates after adding new module 'test_feature'",
+      "description": "A new module has been added to the codebase. Verify that Phase 2 correctly updates architecture.md, modules.md, and changes-index.md.",
+      "expected_output": "Phase 2 detects the new module, updates all three architecture documents correctly, and reports successful update.",
+      "files": [
+        "docs/architectures/architecture.md",
+        "docs/architectures/modules.md",
+        "docs/architectures/changes-index.md",
+        "src/test_feature/test_feature.go"
+      ],
+      "assertions": [
+        {
+          "name": "architecture_update_done",
+          "description": "modules.md is updated with new module entry",
+          "type": "file_contains",
+          "file": "docs/architectures/modules.md",
+          "search_text": "test_feature",
+          "expected_found": true
+        },
+        {
+          "name": "changes_index_append",
+          "description": "changes-index.md has new entry appended",
+          "type": "file_contains",
+          "file": "docs/architectures/changes-index.md",
+          "search_text": "test_feature",
+          "expected_found": true
+        },
+        {
+          "name": "phase2_completes",
+          "description": "Phase 2 architecture check completes successfully",
+          "type": "phase2_status",
+          "expected_value": "complete"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "auto-detect-latest-design",
+      "prompt": "Run verification without providing a path (auto-detect latest)",
+      "description": "When no argument is provided, verify that ecf-verify automatically finds the most recently modified design directory.",
+      "expected_output": "Automatically detects latest design folder from docs/plans/, proceeds with verification without error.",
+      "files": [
+        "docs/plans/"
+      ],
+      "assertions": [
+        {
+          "name": "auto_detect_succeeds",
+          "description": "Auto-detection finds a design directory and verification starts",
+          "type": "exit_status",
+          "expected_value": "success"
+        },
+        {
+          "name": "path_resolution_correct",
+          "description": "The selected path is actually the most recently modified directory",
+          "type": "path_mtime_check",
+          "expected_value": "correct"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "missing-design-folder-error",
+      "prompt": "Verify alignment for non-existent path docs/plans/does-not-exist/",
+      "description": "Test error handling when the specified design folder does not exist.",
+      "expected_output": "Clean error reporting that design folder not found, does not crash with unhandled exception.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "error_reported",
+          "description": "Error is clearly reported to the user",
+          "type": "contains_text",
+          "search_text": "not found",
+          "expected_found": true
+        },
+        {
+          "name": "no_crash",
+          "description": "Does not crash with traceback/exception",
+          "type": "exit_status",
+          "expected_value": "clean_exit"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "bidirectional-verification",
+      "prompt": "Verify bidirectional consistency for docs/plans/test-bidirectional/",
+      "description": "Verify that both directions are checked: spec → design AND design → spec. If design mentions something not in spec, it should be detected.",
+      "expected_output": "Detects features that are in design but not in spec (the reverse direction), reports as inconsistency.",
+      "files": [
+        "docs/plans/test-bidirectional/_index.md",
+        "docs/plans/test-bidirectional/bdd-specs.md",
+        "docs/plans/test-bidirectional/architecture.md"
+      ],
+      "assertions": [
+        {
+          "name": "reverse_inconsistency_detected",
+          "description": "Detects items in design that are not in spec",
+          "type": "contains_text",
+          "search_text": "not in spec",
+          "expected_found": true
+        },
+        {
+          "name": "bidirectional_check_done",
+          "description": "Both directions verified",
+          "type": "count_min",
+          "expected_value": 1
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "knowledge-retrieval-integration",
+      "prompt": "Verify alignment with known inconsistency type that should match knowledge base",
+      "description": "When inconsistencies are found, verify that knowledge retrieval is triggered and matches are reported.",
+      "expected_output": "After finding inconsistencies, searches docs/solutions/ and reports any matching historical solutions.",
+      "files": [
+        "docs/plans/test-kb-match/_index.md",
+        "docs/plans/test-kb-match/bdd-specs.md",
+        "docs/solutions/"
+      ],
+      "assertions": [
+        {
+          "name": "kb_search_performed",
+          "description": "Knowledge base search is performed",
+          "type": "contains_text",
+          "search_text": "📚",
+          "expected_found": true
+        },
+        {
+          "name": "solution_reported",
+          "description": "Matching historical solution is referenced",
+          "type": "contains_text",
+          "search_text": "知识库",
+          "expected_found": true
+        }
+      ]
+    }
+  ]
+}

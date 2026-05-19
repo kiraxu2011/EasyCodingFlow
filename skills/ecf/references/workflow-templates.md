@@ -7,17 +7,18 @@
 
 | 模板名称 | 场景 | 关键词 | 工作流概览 |
 |----------|------|--------|------------|
-| new_feature | 新需求开发 | 开发、新功能、实现 | OpenSpec → Brainstorming → Writing-Plans → **ecf-execute** → ecf-verify → **opsx:archive** → Compound |
+| new_feature | 新需求开发 | 开发、新功能、实现 | OpenSpec → agent-team-orchestrator(Brainstorming) → Writing-Plans → **ecf-execute** → ecf-verify → **opsx:archive** → Compound |
 | bug_fix | Bug修复 | bug、报错、失败 | Systematic-Debugging → Fix → ecf-verify → Compound |
-| refactor | 代码重构 | 重构、优化结构 | Brainstorming → Writing-Plans → **ecf-execute** → ecf-verify → Compound |
-| code_review | Code Review | review、审查 | **ce-review** → Compound |
+| refactor | 代码重构 | 重构、优化结构 | agent-team-orchestrator(Brainstorming) → Writing-Plans → **ecf-execute** → ecf-verify → Compound |
+| code_review | Code Review | review、审查 | **agent-team-orchestrator(code_review)** → Compound |
 | skill_development | Skills开发 | skill、技能、SKILL.md | OpenSpec → **skill-creator** → skill-quality-verification → **opsx:archive** → Compound |
-| incremental | 增量开发 | 扩展、迭代、增强 | OpenSpec → Executing-Plans → ecf-verify → **opsx:archive** → Compound |
+| incremental | 增量开发 | 扩展、迭代、增强 | OpenSpec → **ecf-execute** → ecf-verify → **opsx:archive** → Compound |
 | documentation | 文档更新 | 文档、readme | Direct Execution |
 | test_coverage | 测试补齐 | 测试、用例 | BDD → ecf-verify → Compound |
 
 **关键说明**:
 - **Archive 步骤**: 使用 OpenSpec 发起的变更（new_feature、skill_development、incremental）必须调用 `/opsx:archive` 完成生命周期闭环
+- **agent-team-orchestrator**: brainstorming 和 code_review 的多模型编排包装层。默认启用，可通过配置禁用回退为直接调用开源技能。详见 ecf SKILL.md 的 agent-team-orchestrator-integration 参考。
 - **ecf-execute**: 执行层强制使用 `/ecf-execute` 作为并发入口，而非 `superpowers:executing-plans`
 - **Skills开发特例**: 执行层使用 `skill-creator`（TDD），验证层使用 `skill-quality-verification`（而非 ecf-verify）
 
@@ -80,7 +81,7 @@ workflow:
     layer: contract
     actions:
       - /opsx:propose
-      - Skill("superpowers:brainstorming")
+      - Skill("agent-team-orchestrator", {mode: "brainstorming"})
   - step: 3
     layer: execution
     actions:
@@ -145,7 +146,7 @@ workflow:
     action: intent_recognition
   - step: 2
     layer: contract
-    action: Skill("superpowers:brainstorming")
+    action: Skill("agent-team-orchestrator", {mode: "brainstorming"})
   - step: 3
     layer: execution
     actions:
@@ -181,13 +182,13 @@ workflow:
     action: intent_recognition
   - step: 2
     layer: execution
-    action: Skill("compound-engineering:ce-review")
+    action: Skill("agent-team-orchestrator", {mode: "code_review"})
   - step: 3
     layer: knowledge
     action: ce:compound Update
 ```
 
-**Note**: Uses Compound Engineering's multi-agent review (requires CE plugin). If CE not installed, falls back to Superpowers review skills.
+**Note**: 通过 agent-team-orchestrator 编排多模型 agent 执行审查，内部包装 `compound-engineering:ce-review`。编排器禁用时回退为直接调用 ce-review。
 
 ### Template: skill_development (技能开发)
 
@@ -216,7 +217,7 @@ workflow:
     layer: knowledge
     actions:
       - /opsx:archive  # REQUIRED: OpenSpec lifecycle closure
-      - ce:compound
+      - ce:compound Keep
 ```
 
 **Note**: Skills开发工作流与新需求开发的关键差异：
@@ -245,7 +246,7 @@ workflow:
     action: /opsx:propose (变更套件)
   - step: 3
     layer: execution
-    action: Skill("superpowers:executing-plans:selective")
+    action: Skill("ecf-execute")
   - step: 4  # 新增
     layer: verification
     action: Skill("ecf-verify")
